@@ -63,6 +63,7 @@ _:input_right
 
 _:latency
 	a lv2:OutputPort, lv2:ControlPort ;
+	lv2:designation lv2:latency ;
 	lv2:index 4 ;
 	lv2:symbol "latency" ;
 	lv2:name "Latency" ;
