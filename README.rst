@@ -54,8 +54,17 @@ or ``C:\Program Files\Common Files\LV2`` to install it globally. Replace
 ``Program Files`` with ``Program Files (x86)`` if you have a 64-bit edition of
 Windows and a 32-bit LV2 host.
 
-On Linux
-~~~~~~~~~
+On Arch Linux
+~~~~~~~~~~~~~~
+
+There is a PKGBUILD_ for `Arch Linux`_ which takes care of building an
+installable package.
+
+.. _PKGBUILD: https://github.com/sboukortt/intersect-lv2/blob/pkgbuild/PKGBUILD
+.. _Arch Linux: https://www.archlinux.org/
+
+On other Linux distributions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 No binaries are provided for Linux. Therefore, you should compile the plugin on
 your own machine.
