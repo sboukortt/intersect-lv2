@@ -2,8 +2,6 @@
  intersect-lv2
 ===============
 
-.. default-role:: math
-
 .. contents::
 
 What is this?
@@ -173,8 +171,7 @@ factor of 2, the following transforms will be computed:
 	                                                    [--------]
 
 That is, at each step, the beginning position of the transform is increased by
-`\frac{\text{FFT window size}}{\text{overlap factor}}`, not by a full
-`\text{FFT window size}`.
+``fft_window_size / overlap_factor``, not by a full ``fft_window_size``.
 
 Thus, the overlap factor is the number of transforms that are applied to a given
 sample. The corresponding output sample is computed from the average of the
