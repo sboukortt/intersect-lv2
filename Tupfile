@@ -1,0 +1,18 @@
+.gitignore
+
+ifndef CONFIG_CC
+	error No config specified. Please try e.g. `tup variant config/debug.config`, then run tup again.
+endif
+
+LIBS = lv2 fftw3f
+CFLAGS = @(CFLAGS) `@(PKGCONFIG) --cflags $(LIBS)`
+LFLAGS = @(LFLAGS) `@(PKGCONFIG) --libs $(LIBS)`
+
+!cc = |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
+!so = |> @(CC) -shared %f -o %o $(CFLAGS) $(LFLAGS) |>
+
+: foreach src/*.c |> !cc |> obj/%B.o {objs}
+: {objs} |> !so |> intersect.lv2/intersect.@(EXT)
+
+: foreach metadata/*.ttl |> cp %f %o |> intersect.lv2/%b
+: foreach metadata/*.in |> tup varsed %f %o |> intersect.lv2/%B

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+lv2proc "$@" 'https://sami.boukortt.com/plugins/intersect#Upmix'

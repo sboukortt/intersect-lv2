@@ -1,0 +1,17 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://sami.boukortt.com/plugins/intersect#Intersect>
+	a lv2:Plugin ;
+	lv2:binary <intersect.@EXT@> ;
+	rdfs:seeAlso <intersect.ttl> .
+
+<https://sami.boukortt.com/plugins/intersect#SymmetricDifference>
+	a lv2:Plugin ;
+	lv2:binary <intersect.@EXT@> ;
+	rdfs:seeAlso <intersect.ttl> .
+
+<https://sami.boukortt.com/plugins/intersect#Upmix>
+	a lv2:Plugin ;
+	lv2:binary <intersect.@EXT@> ;
+	rdfs:seeAlso <intersect.ttl> .
