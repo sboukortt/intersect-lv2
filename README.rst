@@ -168,8 +168,7 @@ factor of 2, the following transforms will be computed:
 
 	Input:                [----------------------------]
 
-	Transforms:
-	            [--------]
+	Transforms: [--------]
 	                 [--------]
 	                      [--------]
 	                           [--------]
