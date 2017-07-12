@@ -7,13 +7,13 @@ OVERLAP_FACTOR=128
 : |> sox -n %o synth 3 sin 10000-100 gain -6 |> right.flac
 : |> sox -n %o synth 3 sin 2000 gain -6 |> center.flac
 
-: left.flac right.flac center.flac |> sox --combine merge %f %o remix 1,3 2,3 pad 0 $(FFT_SIZE)s |> input.flac
+: left.flac right.flac center.flac |> sox --combine merge %f %o remix 1,3 2,3 |> input.flac
 : left.flac right.flac center.flac |> sox --combine merge %f %o |> expected.flac
 
 : |> ln -s ../../intersect.lv2 %o |> lv2-path/intersect.lv2
 : input.flac | ../<lv2> lv2-path/intersect.lv2 |> bash -c 'LV2_PATH="$PWD/lv2-path" ../intersect -i %f -o %o -c fft_window_size:$(FFT_SIZE) -c overlap_factor:$(OVERLAP_FACTOR)' |> actual.flac
 
-: actual.flac |> sox %f %o trim $(FFT_SIZE)s gain 6 |> adjusted.flac
+: actual.flac |> sox %f %o gain 6 |> adjusted.flac
 : adjusted.flac expected.flac |> sox --combine merge %f %o remix 1,4i 2,5i 3,6i |> difference.flac
 
 : difference.flac |> sox %f -n stats > %o 2>&1 |> difference-stats.txt

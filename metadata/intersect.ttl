@@ -62,7 +62,7 @@ _:input_right
 	lv2:designation pg:right .
 
 _:latency
-	a lv2:OutputPort, lv2:ControlPort ;
+	a lv2:OutputPort, lv2:ControlPort, lv2:reportsLatency ;
 	lv2:designation lv2:latency ;
 	lv2:index 4 ;
 	lv2:symbol "latency" ;
