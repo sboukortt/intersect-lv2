@@ -9,25 +9,25 @@ my $num = qr/-?\d+(?:\.\d+)?/;
 while (<>) {
 	if (/Pk lev dB\s+(?<overall>$num)\s+(?<left>$num)\s+(?<right>$num)\s+(?<center>$num)/) {
 		for my $channel (qw(overall left right center)) {
-			cmp_ok $+{$channel}, '<', -6, "$channel: peak";
+			cmp_ok $+{$channel}, '<', -8, "$channel: peak";
 		}
 		next;
 	}
 	if (/RMS lev dB\s+(?<overall>$num)\s+(?<left>$num)\s+(?<right>$num)\s+(?<center>$num)/) {
 		for my $channel (qw(overall left right center)) {
-			cmp_ok $+{$channel}, '<', -25, "$channel: rms";
+			cmp_ok $+{$channel}, '<', -29, "$channel: rms";
 		}
 		next;
 	}
 	if (/RMS Pk dB\s+(?<overall>$num)\s+(?<left>$num)\s+(?<right>$num)\s+(?<center>$num)/) {
 		for my $channel (qw(overall left right center)) {
-			cmp_ok $+{$channel}, '<', -12, "$channel: peak rms";
+			cmp_ok $+{$channel}, '<', -15, "$channel: peak rms";
 		}
 		next;
 	}
 	if (/RMS Tr dB\s+(?<overall>$num)\s+(?<left>$num)\s+(?<right>$num)\s+(?<center>$num)/) {
 		for my $channel (qw(overall left right center)) {
-			cmp_ok $+{$channel}, '<', -59, "$channel: trough rms";
+			cmp_ok $+{$channel}, '<', -55, "$channel: trough rms";
 		}
 		next;
 	}

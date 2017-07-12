@@ -1,7 +1,7 @@
 ifndef SKIP_TESTS
 
-FFT_SIZE=16384
-OVERLAP_FACTOR=512
+FFT_SIZE=4096
+OVERLAP_FACTOR=128
 
 : |> sox -n %o synth 3 sin 100-10000 gain -6 |> left.flac
 : |> sox -n %o synth 3 sin 10000-100 gain -6 |> right.flac

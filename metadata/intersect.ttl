@@ -29,7 +29,7 @@ _:fft_window_size
 	units:unit units:frame ;
 	lv2:minimum 1 ;
 	lv2:maximum 65536 ;
-	lv2:default 16384 .
+	lv2:default 4096 .
 
 _:overlap_factor
 	a lv2:InputPort, lv2:ControlPort ;
@@ -39,7 +39,7 @@ _:overlap_factor
 	lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic ;
 	lv2:minimum 1 ;
 	lv2:maximum 65536 ;
-	lv2:default 512 .
+	lv2:default 128 .
 
 _:input
 	a pg:InputGroup ;

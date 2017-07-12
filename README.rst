@@ -148,7 +148,7 @@ defaults.
 FFT Window Size
 ~~~~~~~~~~~~~~~~
 
-:Default value: 16384
+:Default value: 4096
 :LV2 port name: ``fft_window_size``
 
 Number of samples on which to perform a Fourier transform at a time. Higher
@@ -158,7 +158,7 @@ values increase the frequency resolution, at the expense of temporal resolution
 Overlap Factor
 ~~~~~~~~~~~~~~~
 
-:Default value: 512
+:Default value: 128
 :LV2 port name: ``overlap_factor``
 
 Intersect performs FFTs over overlapping windows. For example, with an overlap
