@@ -21,8 +21,6 @@
 #include "types.h"
 #include "util.h"
 
-#define INTERSECT_URI "https://sami.boukortt.com/plugins/intersect"
-
 static float amplitude_squared(const float c[2]) {
 	return c[0] * c[0] + c[1] * c[1];
 }

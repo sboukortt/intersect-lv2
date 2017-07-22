@@ -22,13 +22,8 @@
 
 #define INTERSECT_URI "https://sami.boukortt.com/plugins/intersect"
 
-#ifdef _WIN32
-	#define DLLEXPORT __declspec(dllexport)
-#else
-	#define DLLEXPORT
-#endif
-
-DLLEXPORT const LV2_Descriptor *lv2_descriptor(uint32_t i) {
+LV2_SYMBOL_EXPORT
+const LV2_Descriptor *lv2_descriptor(uint32_t i) {
 	static const LV2_Descriptor intersect_descriptor = {
 		.URI = INTERSECT_URI "#Intersect",
 		.instantiate = intersect_instantiate,
