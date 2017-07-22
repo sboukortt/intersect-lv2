@@ -1,0 +1,6 @@
+include_rules
+
+CXXFLAGS += -Ilvtk
+
+: foreach lvtk/src/*.cpp |> !cxx |> {lvtk}
+: {lvtk} |> !ar |> lvtk.a

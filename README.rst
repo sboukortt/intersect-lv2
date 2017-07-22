@@ -73,11 +73,9 @@ To that effect, you need:
 
 - `pkg-config <https://www.freedesktop.org/wiki/Software/pkg-config/>`_
 - `tup <http://gittup.org/tup/>`_
-- a C compiler (the build files use `Clang <https://clang.llvm.org/>`_ by
-  default but they should be easy to change if you prefer to use
-  `GCC <https://gcc.gnu.org/>`_)
-- development files for `FFTW <http://fftw.org/>`_ and
-  `LV2 <http://lv2plug.in/>`_
+- a modern C++ compiler such as `g++ <https://gcc.gnu.org/>`_
+- development files for `Eigen <https://eigen.tuxfamily.org/>`_,
+  `FFTW <http://fftw.org/>`_ and `LV2 <http://lv2plug.in/>`_
 
 You can then run the following from Intersect’s source tree:
 

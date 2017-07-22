@@ -1,0 +1,10 @@
+ifndef CXX
+	error No config specified. Please try e.g. `tup variant config/debug.config`, then run tup again.
+endif
+
+CXXFLAGS = @(CXXFLAGS) -fPIC -std=c++1z
+LFLAGS = @(LFLAGS)
+
+!cxx = |> @(CXX) -c %f -o %o $(CXXFLAGS) |> %B.o
+!so = |> @(CXX) -shared %f -o %o $(CXXFLAGS) $(LFLAGS) |>
+!ar = |> @(AR) cr %o %f |>

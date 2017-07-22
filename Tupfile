@@ -1,16 +1,16 @@
-ifndef CC
-	error No config specified. Please try e.g. `tup variant config/debug.config`, then run tup again.
-endif
+include_rules
 
-LIBS = lv2 fftw3f
-CFLAGS = @(CFLAGS) `@(PKGCONFIG) --cflags $(LIBS)`
-LFLAGS = @(LFLAGS) `@(PKGCONFIG) --libs $(LIBS)`
+DEPS = third_party/lvtk.a
+CXXFLAGS += -Ithird_party/lvtk
 
-!cc = |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
-!so = |> @(CC) -shared %f -o %o $(CFLAGS) $(LFLAGS) |>
+LIBS = lv2 fftw3f eigen3
+CXXFLAGS += `@(PKGCONFIG) --cflags $(LIBS)`
+LFLAGS += `@(PKGCONFIG) --libs $(LIBS)`
 
-: foreach src/*.c |> !cc |> obj/%B.o {objs}
-: {objs} |> !so |> intersect.lv2/intersect.@(EXT) <lv2>
+CXXFLAGS += -DEIGEN_FFTW_DEFAULT
+
+: foreach src/*.cc |> !cxx |> obj/%B.o {objs}
+: {objs} $(DEPS) |> !so |> intersect.lv2/intersect.@(EXT) <lv2>
 
 : foreach metadata/*.ttl |> cp %f %o |> intersect.lv2/%b <lv2>
 : foreach metadata/*.in |> tup varsed %f %o |> intersect.lv2/%B <lv2>
