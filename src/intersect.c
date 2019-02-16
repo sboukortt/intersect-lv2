@@ -44,7 +44,7 @@ static void run(LV2_Handle handle, uint32_t sample_count, Effect effect) {
 			case UPMIX:
 				memcpy(cursor_output[CENTER], cursor_output[0], block_size * sizeof(float));
 
-				/* falltrough */
+				/* fallthrough */
 			case SYMMETRIC_DIFFERENCE: {
 				int c_;
 				for (c_ = 0; c_ < 2; ++c_) {
