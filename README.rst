@@ -142,7 +142,7 @@ numbers if you already have a lot of plugins).
 Parameters
 -----------
 
-A few parameters can be set if desired, altough they should have sensible
+A few parameters can be set if desired, although they should have sensible
 defaults.
 
 FFT Window Size
