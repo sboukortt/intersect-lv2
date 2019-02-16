@@ -71,9 +71,7 @@ static void run(LV2_Handle handle, uint32_t sample_count, Effect effect) {
 			memmove(intersect->output_buffer[CENTER], intersect->output_buffer[CENTER] + intersect->fft_jump_size, (intersect->fft_size - intersect->fft_jump_size) * sizeof(float));
 			memset(intersect->output_buffer[CENTER] + (intersect->fft_size - intersect->fft_jump_size), 0, intersect->fft_jump_size * sizeof(float));
 
-			for (i = 0; i < 2; ++i) {
-				fftwf_execute(intersect->plan_r2c[i]);
-			}
+			fftwf_execute(intersect->plan_r2c);
 
 			for (i = 0; i < intersect->fft_size / 2 + 1; ++i) {
 				const float * const left   = intersect->transformed[LEFT] [i],

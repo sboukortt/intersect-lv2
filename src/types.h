@@ -46,7 +46,7 @@ struct {
 	float *fft_size_hint, *overlap_factor_hint;
 	float *latency;
 
-	uint32_t fft_size, overlap_factor, fft_jump_size;
+	int fft_size, overlap_factor, fft_jump_size;
 	float normalization_factor;
 
 	/* deviation from the “stable state” where there are `fft_jump_size`
@@ -55,7 +55,7 @@ struct {
 	   When `deviation` = `fft_jump_size`, the output buffer is empty and
 	   the input buffers are full. Time to refill!
 	 */
-	uint32_t deviation;
+	int deviation;
 
 	float *input_buffer[2],
 	      *ifft_result,
@@ -64,7 +64,7 @@ struct {
 	fftwf_complex *transformed[2],
 	              *pre_output;
 
-	fftwf_plan plan_r2c[2],
+	fftwf_plan plan_r2c,
 	           plan_c2r;
 }
 typedef Intersect;

@@ -63,8 +63,21 @@ void intersect_activate(LV2_Handle handle) {
 
 	for (i = 0; i < 2; ++i) {
 		memset(intersect->input_buffer[i], 0, intersect->fft_size * sizeof(float));
-		intersect->plan_r2c[i] = fftwf_plan_dft_r2c_1d(intersect->fft_size, intersect->input_buffer[i], intersect->transformed[i], FFTW_MEASURE | FFTW_DESTROY_INPUT);
 	}
+	intersect->plan_r2c = fftwf_plan_many_dft_r2c(
+		/*rank=*/1,
+		/*n=*/&intersect->fft_size,
+		/*howmany=*/2,
+		/*in*/intersect->input_buffer[LEFT],
+		/*inembed=*/NULL,
+		/*istride=*/1,
+		/*idist=*/intersect->input_buffer[RIGHT] - intersect->input_buffer[LEFT],
+		/*out=*/intersect->transformed[LEFT],
+		/*onembed=*/NULL,
+		/*ostride=*/1,
+		/*odist=*/intersect->transformed[RIGHT] - intersect->transformed[LEFT],
+		FFTW_PATIENT
+	);
 	intersect->plan_c2r = fftwf_plan_dft_c2r_1d(intersect->fft_size, intersect->pre_output, intersect->ifft_result, FFTW_MEASURE | FFTW_DESTROY_INPUT);
 }
 
@@ -82,8 +95,7 @@ void intersect_deactivate(LV2_Handle handle) {
 	fftwf_free(intersect->transformed[RIGHT]);
 	fftwf_free(intersect->pre_output);
 
-	fftwf_destroy_plan(intersect->plan_r2c[LEFT]);
-	fftwf_destroy_plan(intersect->plan_r2c[RIGHT]);
+	fftwf_destroy_plan(intersect->plan_r2c);
 	fftwf_destroy_plan(intersect->plan_c2r);
 
 	fftwf_cleanup();
