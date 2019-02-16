@@ -38,11 +38,11 @@ void intersect_activate(LV2_Handle handle) {
 	Intersect *intersect = handle;
 	int i;
 
-	intersect->fft_size = max(1, *intersect->fft_size_hint + .5f);
+	intersect->fft_size = max(1, *intersect->fft_size_hint);
 	if (intersect->fft_size % 2 != 0) {
 		++intersect->fft_size;
 	}
-	intersect->overlap_factor = max(1, min(intersect->fft_size, *intersect->overlap_factor_hint + .5f));
+	intersect->overlap_factor = max(1, min(intersect->fft_size, *intersect->overlap_factor_hint));
 	intersect->fft_jump_size = intersect->fft_size / intersect->overlap_factor;
 	intersect->normalization_factor = 1.f / (intersect->fft_size * intersect->overlap_factor);
 
