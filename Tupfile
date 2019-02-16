@@ -14,3 +14,7 @@ LFLAGS = @(LFLAGS) `@(PKGCONFIG) --libs $(LIBS)`
 
 : foreach metadata/*.ttl |> cp %f %o |> intersect.lv2/%b <lv2>
 : foreach metadata/*.in |> tup varsed %f %o |> intersect.lv2/%B <lv2>
+
+ifdef RELEASE_ARCHIVE
+  : <lv2> |> advzip --add -4 %o intersect.lv2 |> @(RELEASE_ARCHIVE)
+endif
