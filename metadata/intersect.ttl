@@ -1,3 +1,4 @@
+@prefix :       <https://sami.boukortt.com/plugins/intersect#> .
 @prefix doap:   <http://usefulinc.com/ns/doap#> .
 @prefix foaf:   <http://xmlns.com/foaf/0.1/> .
 @prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
@@ -10,6 +11,7 @@
 <https://sami.boukortt.com/me>
 	a foaf:Person ;
 	foaf:name "Sami Boukortt" ;
+	foaf:homepage <https://sami.boukortt.com/> ;
 	foaf:mbox <mailto:sami@boukortt.com> .
 
 <https://sami.boukortt.com/plugins/intersect>
@@ -41,7 +43,7 @@ _:overlap_factor
 	lv2:maximum 65536 ;
 	lv2:default 128 .
 
-_:input
+:input
 	a pg:InputGroup ;
 	lv2:symbol "input" .
 
@@ -50,7 +52,7 @@ _:input_left
 	lv2:index 2 ;
 	lv2:symbol "input_left" ;
 	lv2:name "Input (left channel)" ;
-	pg:group _:input ;
+	pg:group :input ;
 	lv2:designation pg:left .
 
 _:input_right
@@ -58,7 +60,7 @@ _:input_right
 	lv2:index 3 ;
 	lv2:symbol "input_right" ;
 	lv2:name "Input (right channel)" ;
-	pg:group _:input ;
+	pg:group :input ;
 	lv2:designation pg:right .
 
 _:latency
@@ -69,17 +71,17 @@ _:latency
 	lv2:name "Latency" ;
 	lv2:portProperty lv2:reportsLatency .
 
-_:output
+:output
 	a pg:OutputGroup ;
 	lv2:symbol "output" ;
-	pg:source _:input .
+	pg:source :input .
 
 _:output_left
 	a lv2:OutputPort, lv2:AudioPort ;
 	lv2:index 5 ;
 	lv2:symbol "output_left" ;
 	lv2:name "Output (left)" ;
-	pg:group _:output ;
+	pg:group :output ;
 	lv2:designation pg:left .
 
 _:output_right
@@ -87,12 +89,14 @@ _:output_right
 	lv2:index 6 ;
 	lv2:symbol "output_right" ;
 	lv2:name "Output (right)" ;
-	pg:group _:output ;
+	pg:group :output ;
 	lv2:designation pg:right .
 
 <https://sami.boukortt.com/plugins/intersect#Intersect>
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
+	lv2:minorVersion 1 ;
+	lv2:microVersion 3 ;
 	doap:name "Channel Intersection" ;
 	lv2:port
 		_:fft_window_size, _:overlap_factor,
@@ -103,13 +107,15 @@ _:output_right
 			lv2:index 5 ;
 			lv2:symbol "output" ;
 			lv2:name "Output" ;
-			pg:group _:output ;
+			pg:group :output ;
 			lv2:designation pg:center ;
 		] .
 
 <https://sami.boukortt.com/plugins/intersect#SymmetricDifference>
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
+	lv2:minorVersion 1 ;
+	lv2:microVersion 3 ;
 	doap:name "Channel Symmetric Difference" ;
 	lv2:port
 		_:fft_window_size, _:overlap_factor,
@@ -120,6 +126,8 @@ _:output_right
 <https://sami.boukortt.com/plugins/intersect#Upmix>
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
+	lv2:minorVersion 1 ;
+	lv2:microVersion 3 ;
 	doap:name "2.0 -> 3.0 Upmix" ;
 	lv2:port
 		_:fft_window_size, _:overlap_factor,
@@ -130,6 +138,6 @@ _:output_right
 			lv2:index 7 ;
 			lv2:symbol "output_center" ;
 			lv2:name "Output (center)" ;
-			pg:group _:output ;
+			pg:group :output ;
 			lv2:designation pg:center ;
 		] .
