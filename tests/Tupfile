@@ -1,5 +1,7 @@
 ifndef SKIP_TESTS
 
+.gitignore
+
 FFT_SIZE=4096
 OVERLAP_FACTOR=128
 

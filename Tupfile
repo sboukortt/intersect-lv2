@@ -1,3 +1,5 @@
+.gitignore
+
 ifndef CC
 	error No config specified. Please try e.g. `tup variant config/debug.config`, then run tup again.
 endif
