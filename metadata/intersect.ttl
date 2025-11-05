@@ -96,7 +96,7 @@ _:output_right
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
 	lv2:minorVersion 1 ;
-	lv2:microVersion 3 ;
+	lv2:microVersion 4 ;
 	doap:name "Channel Intersection" ;
 	lv2:port
 		_:fft_window_size, _:overlap_factor,
@@ -115,7 +115,7 @@ _:output_right
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
 	lv2:minorVersion 1 ;
-	lv2:microVersion 3 ;
+	lv2:microVersion 4 ;
 	doap:name "Channel Symmetric Difference" ;
 	lv2:port
 		_:fft_window_size, _:overlap_factor,
@@ -127,7 +127,7 @@ _:output_right
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
 	lv2:minorVersion 1 ;
-	lv2:microVersion 3 ;
+	lv2:microVersion 4 ;
 	doap:name "2.0 -> 3.0 Upmix" ;
 	lv2:port
 		_:fft_window_size, _:overlap_factor,

@@ -1,0 +1,20 @@
+diff a/meson.build b/meson.build
+--- a/meson.build
++++ b/meson.build
+@@ -339,13 +339,13 @@ endif
+ # Programs #
+ ############
+ 
+-# Command-line utilities
+-subdir('util')
+-
+ # Data and build tests
+ subdir('test')
+ 
+ if not meson.is_subproject()
++  # Command-line utilities
++  subdir('util')
++
+   summary('Tests', not get_option('tests').disabled(), bool_yn: true)
+   summary('Documentation', build_docs, bool_yn: true)
+   summary('Prefix', get_option('prefix'), section: 'Paths')

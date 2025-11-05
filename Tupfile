@@ -1,17 +1,17 @@
 .gitignore
 
-ifndef CC
+ifndef CXX
 	error No config specified. Please try e.g. `tup variant config/debug.config`, then run tup again.
 endif
 
-LIBS = lv2 fftw3f
-CFLAGS = @(CFLAGS) `@(PKGCONFIG) --cflags $(LIBS)`
+LIBS = libhwy lv2 fftw3f
+CXXFLAGS = @(CXXFLAGS) -fPIC `@(PKGCONFIG) --cflags $(LIBS)` -Isrc
 LFLAGS = @(LFLAGS) `@(PKGCONFIG) --libs $(LIBS)`
 
-!cc = |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
-!so = |> @(CC) -shared %f -o %o $(CFLAGS) $(LFLAGS) |>
+!cxx = |> @(CXX) -c %f -o %o $(CXXFLAGS) |> %B.o
+!so = |> @(CXX) -shared %f -o %o $(CXXFLAGS) $(LFLAGS) |>
 
-: foreach src/*.c |> !cc |> obj/%B.o {objs}
+: foreach src/*.cc |> !cxx |> obj/%B.o {objs}
 : {objs} |> !so |> intersect.lv2/intersect.@(EXT) <lv2>
 
 : foreach metadata/*.ttl |> cp %f %o |> intersect.lv2/%b <lv2>

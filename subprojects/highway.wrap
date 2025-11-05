@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/google/highway.git
+revision = 87bca3d7a2d3ad8968af14f1b752915915069529
+depth = 1
+
+[provide]
+libhwy = hwy_dep

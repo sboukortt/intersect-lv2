@@ -14,16 +14,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <lv2/core/lv2.h>
 #include "init.h"
 #include "intersect.h"
 
 #define INTERSECT_URI "https://sami.boukortt.com/plugins/intersect"
 
 LV2_SYMBOL_EXPORT
-const LV2_Descriptor *lv2_descriptor(uint32_t i) {
+const LV2_Descriptor* lv2_descriptor(uint32_t i) {
 	static const LV2_Descriptor intersect_descriptor = {
 		.URI = INTERSECT_URI "#Intersect",
 		.instantiate = intersect_instantiate,
@@ -32,7 +30,7 @@ const LV2_Descriptor *lv2_descriptor(uint32_t i) {
 		.run = intersect_run,
 		.deactivate = intersect_deactivate,
 		.cleanup = intersect_cleanup,
-		.extension_data = NULL,
+		.extension_data = nullptr,
 	};
 
 	static const LV2_Descriptor symmetric_difference_descriptor = {
@@ -43,7 +41,7 @@ const LV2_Descriptor *lv2_descriptor(uint32_t i) {
 		.run = symmetric_difference_run,
 		.deactivate = intersect_deactivate,
 		.cleanup = intersect_cleanup,
-		.extension_data = NULL,
+		.extension_data = nullptr,
 	};
 
 	static const LV2_Descriptor upmix_descriptor = {
@@ -54,7 +52,7 @@ const LV2_Descriptor *lv2_descriptor(uint32_t i) {
 		.run = upmix_run,
 		.deactivate = intersect_deactivate,
 		.cleanup = intersect_cleanup,
-		.extension_data = NULL,
+		.extension_data = nullptr,
 	};
 
 	switch (i) {
@@ -68,6 +66,6 @@ const LV2_Descriptor *lv2_descriptor(uint32_t i) {
 			return &upmix_descriptor;
 
 		default:
-			return NULL;
+			return nullptr;
 	}
 }

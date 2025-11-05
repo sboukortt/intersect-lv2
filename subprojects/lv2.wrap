@@ -1,0 +1,9 @@
+[wrap-file]
+directory = lv2-1.18.10
+source_url = https://lv2plug.in/spec/lv2-1.18.10.tar.xz
+source_filename = lv2-1.18.10.tar.xz
+source_hash = 78c51bcf21b54e58bb6329accbb4dae03b2ed79b520f9a01e734bd9de530953f
+diff_files = lv2-util.patch
+
+[provide]
+lv2 = lv2_dep

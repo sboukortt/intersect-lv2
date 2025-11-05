@@ -2,6 +2,8 @@
  intersect-lv2
 ===============
 
+.. default-role:: math
+
 .. contents::
 
 What is this?
@@ -42,17 +44,14 @@ On Windows
 ~~~~~~~~~~~
 
 The simplest option on Windows is to download the binaries on `the release
-page`_. You should pick the ``win32`` or ``win64`` archive depending on whether
-your LV2 host is 32-bit (which Audacity currently is) or 64-bit.
+page`_.
 
 .. _the release page: https://github.com/sboukortt/intersect-lv2/releases
 
 Assuming that your Windows installation lives on drive ``C:``, you can then drag
 and drop the ``intersect.lv2`` folder from the archive to either
 ``C:\Users\<user name>\AppData\Roaming\LV2`` to install it for your user only,
-or ``C:\Program Files\Common Files\LV2`` to install it globally. Replace
-``Program Files`` with ``Program Files (x86)`` if you have a 64-bit edition of
-Windows and a 32-bit LV2 host.
+or ``C:\Program Files\Common Files\LV2`` to install it globally.
 
 On Arch Linux
 ~~~~~~~~~~~~~~
@@ -69,25 +68,20 @@ On other Linux distributions
 No binaries are provided for Linux. Therefore, you should compile the plugin on
 your own machine.
 
-To that effect, you need:
+To that end, you need:
 
-- `pkg-config <https://www.freedesktop.org/wiki/Software/pkg-config/>`_
-- `tup <http://gittup.org/tup/>`_
-- a C compiler (the build files use `Clang <https://clang.llvm.org/>`_ by
-  default but they should be easy to change if you prefer to use
-  `GCC <https://gcc.gnu.org/>`_)
-- development files for `FFTW <http://fftw.org/>`_ and
-  `LV2 <http://lv2plug.in/>`_
+- `meson <https://mesonbuild.com/>`_
+- a modern C++ compiler
+- development files for `FFTW <http://fftw.org/>`_ (note: the right MacPorts package is `fftw-3-single`)
 
 You can then run the following from Intersect’s source tree:
 
 .. code:: console
 
-	$ tup variant config/release.config
-	$ tup
-
-Finally, you can then copy the ``build-release/intersect.lv2`` folder to either
-``$HOME/.lv2/`` or ``/usr/lib/lv2/``.
+	$ mkdir -p build && cd build
+	$ meson setup -Dbuildtype=release -Dprefix=$PREFIX
+	$ ninja
+	$ meson install --tag runtime
 
 Actual usage
 -------------
@@ -179,7 +173,8 @@ factor of 2, the following transforms will be computed:
 	                                                    [--------]
 
 That is, at each step, the beginning position of the transform is increased by
-``fft_window_size / overlap_factor``, not by a full ``fft_window_size``.
+`\frac{\text{FFT window size}}{\text{overlap factor}}`, not by a full
+`\text{FFT window size}`.
 
 Thus, the overlap factor is the number of transforms that are applied to a given
 sample. The corresponding output sample is computed from the average of the

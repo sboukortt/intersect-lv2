@@ -18,7 +18,7 @@
 */
 
 #include <fftw3.h>
-#include <stdint.h>
+#include <hwy/aligned_allocator.h>
 
 enum {
 	FFT_SIZE,
@@ -31,20 +31,21 @@ enum {
 	OUTPUT_CHANNEL_CENTER,
 };
 
-enum {
-	INTERSECT,
-	SYMMETRIC_DIFFERENCE,
-	UPMIX,
-}
-typedef Effect;
+enum class Effect {
+	Intersect,
+	SymmetricDifference,
+	Upmix,
+};
 
 enum {LEFT, RIGHT, CENTER};
 
-struct {
-	float *input[2], *output[3];
+struct Intersect {
+	float* input[2];
+	float* output[3];
 
-	float *fft_size_hint, *overlap_factor_hint;
-	float *latency;
+	float* fft_size_hint;
+	float* overlap_factor_hint;
+	float* latency;
 
 	int fft_size, overlap_factor, fft_jump_size;
 	float normalization_factor;
@@ -57,16 +58,14 @@ struct {
 	 */
 	int deviation;
 
-	float *input_buffer[2],
-	      *ifft_result,
-	      *output_buffer[3];
+	float* input_buffer[2];
+	float* ifft_result;
+	hwy::AlignedFreeUniquePtr<float[]> output_buffer[3];
 
-	fftwf_complex *transformed[2],
-	              *pre_output;
+	fftwf_complex* transformed[2];
+	fftwf_complex* pre_output;
 
-	fftwf_plan plan_r2c,
-	           plan_c2r;
-}
-typedef Intersect;
+	fftwf_plan plan_r2c, plan_c2r;
+};
 
 #endif

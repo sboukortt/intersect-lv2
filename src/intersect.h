@@ -17,8 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
-#include <stdint.h>
+#include <cstdint>
+#include <lv2/core/lv2.h>
 
 void intersect_run(LV2_Handle handle, uint32_t sample_count);
 void symmetric_difference_run(LV2_Handle handle, uint32_t sample_count);
