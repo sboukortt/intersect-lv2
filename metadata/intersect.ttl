@@ -22,75 +22,14 @@
 	doap:developer <https://sami.boukortt.com/me> ;
 	doap:maintainer <https://sami.boukortt.com/me> .
 
-_:fft_window_size
-	a lv2:InputPort, lv2:ControlPort ;
-	lv2:index 0 ;
-	lv2:symbol "fft_window_size" ;
-	lv2:name "FFT window size" ;
-	lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic ;
-	units:unit units:frame ;
-	lv2:minimum 1 ;
-	lv2:maximum 65536 ;
-	lv2:default 4096 .
-
-_:overlap_factor
-	a lv2:InputPort, lv2:ControlPort ;
-	lv2:index 1 ;
-	lv2:symbol "overlap_factor" ;
-	lv2:name "Overlap factor" ;
-	lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic ;
-	lv2:minimum 1 ;
-	lv2:maximum 65536 ;
-	lv2:default 128 .
-
 :input
 	a pg:InputGroup ;
 	lv2:symbol "input" .
-
-_:input_left
-	a lv2:InputPort, lv2:AudioPort ;
-	lv2:index 2 ;
-	lv2:symbol "input_left" ;
-	lv2:name "Input (left channel)" ;
-	pg:group :input ;
-	lv2:designation pg:left .
-
-_:input_right
-	a lv2:InputPort, lv2:AudioPort ;
-	lv2:index 3 ;
-	lv2:symbol "input_right" ;
-	lv2:name "Input (right channel)" ;
-	pg:group :input ;
-	lv2:designation pg:right .
-
-_:latency
-	a lv2:OutputPort, lv2:ControlPort, lv2:reportsLatency ;
-	lv2:designation lv2:latency ;
-	lv2:index 4 ;
-	lv2:symbol "latency" ;
-	lv2:name "Latency" ;
-	lv2:portProperty lv2:reportsLatency .
 
 :output
 	a pg:OutputGroup ;
 	lv2:symbol "output" ;
 	pg:source :input .
-
-_:output_left
-	a lv2:OutputPort, lv2:AudioPort ;
-	lv2:index 5 ;
-	lv2:symbol "output_left" ;
-	lv2:name "Output (left)" ;
-	pg:group :output ;
-	lv2:designation pg:left .
-
-_:output_right
-	a lv2:OutputPort, lv2:AudioPort ;
-	lv2:index 6 ;
-	lv2:symbol "output_right" ;
-	lv2:name "Output (right)" ;
-	pg:group :output ;
-	lv2:designation pg:right .
 
 <https://sami.boukortt.com/plugins/intersect#Intersect>
 	a lv2:Plugin, lv2:SpatialPlugin ;
@@ -98,18 +37,54 @@ _:output_right
 	lv2:minorVersion 1 ;
 	lv2:microVersion 4 ;
 	doap:name "Channel Intersection" ;
-	lv2:port
-		_:fft_window_size, _:overlap_factor,
-		_:input_left, _:input_right,
-		_:latency,
-		[
-			a lv2:OutputPort, lv2:AudioPort ;
-			lv2:index 5 ;
-			lv2:symbol "output" ;
-			lv2:name "Output" ;
-			pg:group :output ;
-			lv2:designation pg:center ;
-		] .
+	lv2:port [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 0 ;
+		lv2:symbol "fft_window_size" ;
+		lv2:name "FFT window size" ;
+		lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic, pprops:expensive ;
+		units:unit units:frame ;
+		lv2:minimum 1 ;
+		lv2:maximum 65536 ;
+		lv2:default 4096 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 1 ;
+		lv2:symbol "overlap_factor" ;
+		lv2:name "Overlap factor" ;
+		lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic, pprops:expensive ;
+		lv2:minimum 1 ;
+		lv2:maximum 65536 ;
+		lv2:default 128 ;
+	], [
+		a lv2:InputPort, lv2:AudioPort ;
+		lv2:index 2 ;
+		lv2:symbol "input_left" ;
+		lv2:name "Input (left channel)" ;
+		pg:group :input ;
+		lv2:designation pg:left ;
+	], [
+		a lv2:InputPort, lv2:AudioPort ;
+		lv2:index 3 ;
+		lv2:symbol "input_right" ;
+		lv2:name "Input (right channel)" ;
+		pg:group :input ;
+		lv2:designation pg:right ;
+	], [
+		a lv2:OutputPort, lv2:ControlPort, lv2:reportsLatency ;
+		lv2:designation lv2:latency ;
+		lv2:index 4 ;
+		lv2:symbol "latency" ;
+		lv2:name "Latency" ;
+		lv2:portProperty lv2:reportsLatency, pprops:notOnGUI ;
+	], [
+		a lv2:OutputPort, lv2:AudioPort ;
+		lv2:index 5 ;
+		lv2:symbol "output" ;
+		lv2:name "Output" ;
+		pg:group :output ;
+		lv2:designation pg:center ;
+	] .
 
 <https://sami.boukortt.com/plugins/intersect#SymmetricDifference>
 	a lv2:Plugin, lv2:SpatialPlugin ;
@@ -117,11 +92,61 @@ _:output_right
 	lv2:minorVersion 1 ;
 	lv2:microVersion 4 ;
 	doap:name "Channel Symmetric Difference" ;
-	lv2:port
-		_:fft_window_size, _:overlap_factor,
-		_:input_left, _:input_right,
-		_:latency,
-		_:output_left, _:output_right .
+	lv2:port [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 0 ;
+		lv2:symbol "fft_window_size" ;
+		lv2:name "FFT window size" ;
+		lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic, pprops:expensive ;
+		units:unit units:frame ;
+		lv2:minimum 1 ;
+		lv2:maximum 65536 ;
+		lv2:default 4096 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 1 ;
+		lv2:symbol "overlap_factor" ;
+		lv2:name "Overlap factor" ;
+		lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic, pprops:expensive ;
+		lv2:minimum 1 ;
+		lv2:maximum 65536 ;
+		lv2:default 128 ;
+	], [
+		a lv2:InputPort, lv2:AudioPort ;
+		lv2:index 2 ;
+		lv2:symbol "input_left" ;
+		lv2:name "Input (left channel)" ;
+		pg:group :input ;
+		lv2:designation pg:left ;
+	], [
+		a lv2:InputPort, lv2:AudioPort ;
+		lv2:index 3 ;
+		lv2:symbol "input_right" ;
+		lv2:name "Input (right channel)" ;
+		pg:group :input ;
+		lv2:designation pg:right ;
+	], [
+		a lv2:OutputPort, lv2:ControlPort, lv2:reportsLatency ;
+		lv2:designation lv2:latency ;
+		lv2:index 4 ;
+		lv2:symbol "latency" ;
+		lv2:name "Latency" ;
+		lv2:portProperty lv2:reportsLatency, pprops:notOnGUI ;
+	], [
+		a lv2:OutputPort, lv2:AudioPort ;
+		lv2:index 5 ;
+		lv2:symbol "output_left" ;
+		lv2:name "Output (left)" ;
+		pg:group :output ;
+		lv2:designation pg:left ;
+	], [
+		a lv2:OutputPort, lv2:AudioPort ;
+		lv2:index 6 ;
+		lv2:symbol "output_right" ;
+		lv2:name "Output (right)" ;
+		pg:group :output ;
+		lv2:designation pg:right ;
+	] .
 
 <https://sami.boukortt.com/plugins/intersect#Upmix>
 	a lv2:Plugin, lv2:SpatialPlugin ;
@@ -129,15 +154,65 @@ _:output_right
 	lv2:minorVersion 1 ;
 	lv2:microVersion 4 ;
 	doap:name "2.0 -> 3.0 Upmix" ;
-	lv2:port
-		_:fft_window_size, _:overlap_factor,
-		_:input_left, _:input_right,
-		_:latency,
-		_:output_left, _:output_right, [
-			a lv2:OutputPort, lv2:AudioPort ;
-			lv2:index 7 ;
-			lv2:symbol "output_center" ;
-			lv2:name "Output (center)" ;
-			pg:group :output ;
-			lv2:designation pg:center ;
-		] .
+	lv2:port [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 0 ;
+		lv2:symbol "fft_window_size" ;
+		lv2:name "FFT window size" ;
+		lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic, pprops:expensive ;
+		units:unit units:frame ;
+		lv2:minimum 1 ;
+		lv2:maximum 65536 ;
+		lv2:default 4096 ;
+	], [
+		a lv2:InputPort, lv2:ControlPort ;
+		lv2:index 1 ;
+		lv2:symbol "overlap_factor" ;
+		lv2:name "Overlap factor" ;
+		lv2:portProperty lv2:integer, pprops:logarithmic, pprops:notAutomatic, pprops:expensive ;
+		lv2:minimum 1 ;
+		lv2:maximum 65536 ;
+		lv2:default 128 ;
+	], [
+		a lv2:InputPort, lv2:AudioPort ;
+		lv2:index 2 ;
+		lv2:symbol "input_left" ;
+		lv2:name "Input (left channel)" ;
+		pg:group :input ;
+		lv2:designation pg:left ;
+	], [
+		a lv2:InputPort, lv2:AudioPort ;
+		lv2:index 3 ;
+		lv2:symbol "input_right" ;
+		lv2:name "Input (right channel)" ;
+		pg:group :input ;
+		lv2:designation pg:right ;
+	], [
+		a lv2:OutputPort, lv2:ControlPort, lv2:reportsLatency ;
+		lv2:designation lv2:latency ;
+		lv2:index 4 ;
+		lv2:symbol "latency" ;
+		lv2:name "Latency" ;
+		lv2:portProperty lv2:reportsLatency, pprops:notOnGUI ;
+	], [
+		a lv2:OutputPort, lv2:AudioPort ;
+		lv2:index 5 ;
+		lv2:symbol "output_left" ;
+		lv2:name "Output (left)" ;
+		pg:group :output ;
+		lv2:designation pg:left ;
+	], [
+		a lv2:OutputPort, lv2:AudioPort ;
+		lv2:index 6 ;
+		lv2:symbol "output_right" ;
+		lv2:name "Output (right)" ;
+		pg:group :output ;
+		lv2:designation pg:right ;
+	], [
+		a lv2:OutputPort, lv2:AudioPort ;
+		lv2:index 7 ;
+		lv2:symbol "output_center" ;
+		lv2:name "Output (center)" ;
+		pg:group :output ;
+		lv2:designation pg:center ;
+	] .
