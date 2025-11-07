@@ -3,11 +3,20 @@ project('intersect-lv2', 'cpp', version: '1.4.0', default_options: ['cpp_std=c++
 static = target_machine.system() == 'windows' or target_machine.system() == 'darwin'
 
 fftw3_dep = dependency('fftw3f', static: static)
-hwy_dep = subproject('highway', default_options: [
-	'contrib=disabled',
-	'examples=disabled',
-	'tests=disabled',
-]).get_variable('hwy_dep')
+if static
+	# Due to apparent issues when trying to statically link to system-wide Highway, bypass and use the subproject directly
+	hwy_dep = subproject('highway', default_options: [
+		'contrib=disabled',
+		'examples=disabled',
+		'tests=disabled',
+	]).get_variable('hwy_dep')
+else
+	hwy_dep = dependency('libhwy', version: '1.3.0', default_options: [
+		'contrib=disabled',
+		'examples=disabled',
+		'tests=disabled',
+	])
+endif
 lv2_dep = dependency('lv2', static: static, default_options: [
 	'docs=disabled',
 	'old_headers=false',
