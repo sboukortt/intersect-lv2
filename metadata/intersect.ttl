@@ -34,8 +34,8 @@
 <https://sami.boukortt.com/plugins/intersect#Intersect>
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
-	lv2:minorVersion 1 ;
-	lv2:microVersion 4 ;
+	lv2:minorVersion 2 ;
+	lv2:microVersion 0 ;
 	doap:name "Channel Intersection" ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
@@ -89,8 +89,8 @@
 <https://sami.boukortt.com/plugins/intersect#SymmetricDifference>
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
-	lv2:minorVersion 1 ;
-	lv2:microVersion 4 ;
+	lv2:minorVersion 2 ;
+	lv2:microVersion 0 ;
 	doap:name "Channel Symmetric Difference" ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;
@@ -151,8 +151,8 @@
 <https://sami.boukortt.com/plugins/intersect#Upmix>
 	a lv2:Plugin, lv2:SpatialPlugin ;
 	lv2:project <https://sami.boukortt.com/plugins/intersect> ;
-	lv2:minorVersion 1 ;
-	lv2:microVersion 4 ;
+	lv2:minorVersion 2 ;
+	lv2:microVersion 0 ;
 	doap:name "2.0 -> 3.0 Upmix" ;
 	lv2:port [
 		a lv2:InputPort, lv2:ControlPort ;

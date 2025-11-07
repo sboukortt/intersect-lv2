@@ -1,4 +1,4 @@
-project('intersect-lv2', 'cpp', version: '1.4.0', default_options: ['cpp_std=c++17'])
+project('intersect-lv2', 'cpp', version: '2.0', default_options: ['cpp_std=c++17'])
 
 static = target_machine.system() == 'windows' or target_machine.system() == 'darwin'
 
