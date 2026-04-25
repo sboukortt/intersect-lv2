@@ -112,9 +112,9 @@ HWY_ATTR void run(LV2_Handle handle, uint32_t sample_count, Effect effect) {
 					intersect->fft_size + 2,
 					reinterpret_cast<const float*>(intersect->transformed[LEFT]),
 					reinterpret_cast<const float*>(intersect->transformed[RIGHT]),
-					[](auto d, auto unused, auto left, auto right) HWY_ATTR {
-						const auto left_squared = left * left;
-						const auto right_squared = right * right;
+					[](auto d, auto, auto left, auto right) HWY_ATTR {
+						const auto left_squared = hn::Mul(left, left);
+						const auto right_squared = hn::Mul(right, right);
 						const auto left_magnitudes_squared = hn::PairwiseAdd(d, left_squared, left_squared);
 						const auto right_magnitudes_squared = hn::PairwiseAdd(d, right_squared, right_squared);
 						return hn::IfThenElse(hn::Lt(left_magnitudes_squared, right_magnitudes_squared), left, right);
