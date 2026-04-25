@@ -124,11 +124,15 @@ HWY_ATTR void run(LV2_Handle handle, uint32_t sample_count, Effect effect) {
 
 			fftwf_execute(intersect->plan_c2r);
 
-			for (int i = 0; i < intersect->fft_size; i += Lanes(d)) {
-				const auto output = hn::Load(d, &intersect->output_buffer[CENTER][i]);
-				const auto ifft = hn::LoadU(d, &intersect->ifft_result[i]);
-				hn::Store(hn::Add(output, ifft), d, &intersect->output_buffer[CENTER][i]);
-			}
+			hn::Transform1(
+				d,
+				intersect->output_buffer[CENTER].get(),
+				intersect->fft_size,
+				intersect->ifft_result,
+				[](auto d, auto output, auto ifft) HWY_ATTR {
+					return hn::Add(output, ifft);
+				}
+			);
 			for (int i = 0; i < 2; ++i) {
 				memcpy(intersect->output_buffer[i].get(), intersect->input_buffer[i], intersect->fft_jump_size * sizeof(float));
 				memmove(intersect->input_buffer[i], intersect->input_buffer[i] + intersect->fft_jump_size, (intersect->fft_size - intersect->fft_jump_size) * sizeof(float));
