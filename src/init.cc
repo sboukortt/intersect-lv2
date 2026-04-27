@@ -62,6 +62,7 @@ LV2_Handle intersect_instantiate(const LV2_Descriptor* descriptor,
                                  const char* bundle_path,
                                  const LV2_Feature* const * features)
 {
+	fftwf_make_planner_thread_safe();
 	return new Intersect;
 }
 
@@ -139,8 +140,6 @@ void intersect_deactivate(LV2_Handle handle) {
 
 	fftwf_destroy_plan(intersect->plan_r2c);
 	fftwf_destroy_plan(intersect->plan_c2r);
-
-	fftwf_cleanup();
 }
 
 void intersect_connect_port(LV2_Handle handle, uint32_t port, void* data) {

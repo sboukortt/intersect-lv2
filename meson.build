@@ -3,6 +3,18 @@ project('intersect-lv2', 'cpp', version: '2.0', default_options: ['cpp_std=c++17
 static = target_machine.system() == 'windows' or target_machine.system() == 'darwin'
 
 fftw3_dep = dependency('fftw3f', static: static)
+fftw3_libdir = fftw3_dep.get_variable(pkgconfig: 'libdir', default_value: '')
+cc = meson.get_compiler('cpp')
+if fftw3_libdir != ''
+	fftw3_threads_lib = cc.find_library('fftw3f_threads', dirs: fftw3_libdir, static: static)
+else
+	fftw3_threads_lib = cc.find_library('fftw3f_threads', static: static)
+endif
+threads_dep = dependency('threads')
+fftw3_dep = declare_dependency(
+	dependencies: [fftw3_dep, fftw3_threads_lib, threads_dep],
+)
+
 if static
 	# Due to apparent issues when trying to statically link to system-wide Highway, bypass and use the subproject directly
 	hwy_dep = subproject('highway', default_options: [
