@@ -1,6 +1,6 @@
 [wrap-git]
 url = https://github.com/google/highway.git
-revision = 87bca3d7a2d3ad8968af14f1b752915915069529
+revision = 2607d3b5b0113992fe84d3848859eae13b3b52c1
 depth = 1
 
 [provide]
