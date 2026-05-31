@@ -57,3 +57,4 @@ are read from the file header; other formats default to 44100 Hz for decode.
 2. Optionally adjust FFT window size and overlap (defaults match the LV2 plugin).
 3. Click **Process** (WASM runs in a Web Worker so the page stays responsive).
 4. Use the **Left & right** and **Center** players independently (play, pause, volume, seek).
+5. After processing, **Save WAV** writes 16-bit stereo L/R or mono center locally (e.g. ``mytrack-left-right.wav``, ``mytrack-center.wav``).

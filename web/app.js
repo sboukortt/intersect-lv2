@@ -14,8 +14,10 @@ const lrAudio = document.getElementById('lr-audio');
 const centerAudio = document.getElementById('center-audio');
 const lrPlay = document.getElementById('lr-play');
 const lrPause = document.getElementById('lr-pause');
+const lrDownload = document.getElementById('lr-download');
 const centerPlay = document.getElementById('center-play');
 const centerPause = document.getElementById('center-pause');
+const centerDownload = document.getElementById('center-download');
 const lrVolume = document.getElementById('lr-volume');
 const centerVolume = document.getElementById('center-volume');
 const lrSeek = document.getElementById('lr-seek');
@@ -25,6 +27,10 @@ const centerTime = document.getElementById('center-time');
 
 /** @type {AudioBuffer | null} */
 let sourceBuffer = null;
+/** @type {string} base name for export files (no extension) */
+let sourceBaseName = 'intersect';
+/** @type {{ lr: Blob, center: Blob } | null} */
+let processedBlobs = null;
 /** @type {Worker | null} */
 let processorWorker = null;
 /** @type {Promise<Worker> | null} */
@@ -46,10 +52,33 @@ function setStatus(message, { processing = false } = {}) {
 
 function enablePlayback(enabled) {
 	for (const el of [
-		lrPlay, lrPause, centerPlay, centerPause, lrSeek, centerSeek,
+		lrPlay, lrPause, lrDownload, centerPlay, centerPause, centerDownload,
+		lrSeek, centerSeek,
 	]) {
 		el.disabled = !enabled;
 	}
+}
+
+/**
+ * @param {string} filename
+ * @param {Blob} blob
+ */
+function downloadBlob(filename, blob) {
+	const url = URL.createObjectURL(blob);
+	const anchor = document.createElement('a');
+	anchor.href = url;
+	anchor.download = filename;
+	anchor.rel = 'noopener';
+	document.body.appendChild(anchor);
+	anchor.click();
+	anchor.remove();
+	setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+/** @param {string} filename */
+function exportBaseName(filename) {
+	const base = filename.replace(/\.[^.]+$/, '').trim();
+	return base || 'intersect';
 }
 
 /** Minimal Wasm module that uses v128 (simd128); validates SIMD support. */
@@ -356,9 +385,22 @@ const centerPlayer = wirePlayer(
 	centerTime,
 );
 
+lrDownload.addEventListener('click', () => {
+	if (processedBlobs) {
+		downloadBlob(`${sourceBaseName}-left-right.wav`, processedBlobs.lr);
+	}
+});
+
+centerDownload.addEventListener('click', () => {
+	if (processedBlobs) {
+		downloadBlob(`${sourceBaseName}-center.wav`, processedBlobs.center);
+	}
+});
+
 fileInput.addEventListener('change', async () => {
 	const file = fileInput.files?.[0];
 	sourceBuffer = null;
+	processedBlobs = null;
 	enablePlayback(false);
 	processBtn.disabled = true;
 
@@ -366,6 +408,8 @@ fileInput.addEventListener('change', async () => {
 		fileInfo.textContent = 'No file loaded.';
 		return;
 	}
+
+	sourceBaseName = exportBaseName(file.name);
 
 	setStatus('Decoding audio…', { processing: true });
 	try {
@@ -414,10 +458,11 @@ processBtn.addEventListener('click', async () => {
 
 		const lrBlob = buildLrWavBlob(outLeft, outRight, sampleRate);
 		const centerBlob = buildCenterWavBlob(outCenter, sampleRate);
+		processedBlobs = { lr: lrBlob, center: centerBlob };
 		lrPlayer.setSource(lrBlob);
 		centerPlayer.setSource(centerBlob);
 		enablePlayback(true);
-		setStatus('Done. Use the players below to listen.');
+		setStatus('Done. Listen below or save the WAV files.');
 	} catch (err) {
 		setStatus(`Error: ${err.message}`);
 		enablePlayback(false);
