@@ -99,6 +99,14 @@ uint32_t intersect_wasm_process(
 }
 
 EMSCRIPTEN_KEEPALIVE
+void intersect_wasm_flush(IntersectWasm* handle) {
+	if (handle == nullptr || !handle->active) {
+		return;
+	}
+	intersect_engine_flush_upmix(&handle->intersect);
+}
+
+EMSCRIPTEN_KEEPALIVE
 uint32_t intersect_wasm_get_latency(IntersectWasm* handle) {
 	if (handle == nullptr || !handle->active) {
 		return 0;

@@ -96,6 +96,15 @@ void intersect_engine_activate(Intersect* intersect) {
 		memset(intersect->input_buffer[i], 0, intersect->fft_size * sizeof(float));
 	}
 
+#if defined(__EMSCRIPTEN__)
+	// PATIENT/MEASURE benchmark many plans; on WASM that can take forever.
+	const unsigned plan_r2c_flags = FFTW_ESTIMATE;
+	const unsigned plan_c2r_flags = FFTW_ESTIMATE | FFTW_DESTROY_INPUT;
+#else
+	const unsigned plan_r2c_flags = FFTW_PATIENT;
+	const unsigned plan_c2r_flags = FFTW_MEASURE | FFTW_DESTROY_INPUT;
+#endif
+
 	intersect->plan_r2c = fftwf_plan_many_dft_r2c(
 		/*rank=*/1,
 		/*n=*/&intersect->fft_size,
@@ -108,13 +117,13 @@ void intersect_engine_activate(Intersect* intersect) {
 		/*onembed=*/NULL,
 		/*ostride=*/1,
 		/*odist=*/intersect->transformed[RIGHT] - intersect->transformed[LEFT],
-		FFTW_PATIENT
+		plan_r2c_flags
 	);
 	intersect->plan_c2r = fftwf_plan_dft_c2r_1d(
 		intersect->fft_size,
 		intersect->pre_output,
 		intersect->ifft_result,
-		FFTW_MEASURE | FFTW_DESTROY_INPUT
+		plan_c2r_flags
 	);
 }
 
@@ -156,7 +165,9 @@ void intersect_engine_process_upmix(
 	intersect->latency = nullptr;
 
 	upmix_run(intersect, sample_count);
+}
 
+void intersect_engine_flush_upmix(Intersect* intersect) {
 	const uint32_t latency = intersect_engine_latency(intersect);
 	if (latency == 0) {
 		return;
@@ -171,6 +182,7 @@ void intersect_engine_process_upmix(
 	intersect->output[LEFT]  = discard_left.data();
 	intersect->output[RIGHT] = discard_right.data();
 	intersect->output[CENTER] = discard_center.data();
+	intersect->latency = nullptr;
 	upmix_run(intersect, latency);
 }
 

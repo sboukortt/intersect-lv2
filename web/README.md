@@ -42,4 +42,6 @@ are read from the file header; other formats default to 44100 Hz for decode.
 1. Choose a stereo audio file.
 2. Optionally adjust FFT window size and overlap (defaults match the LV2 plugin).
 3. Click **Process** (WASM runs in a Web Worker so the page stays responsive).
+   FFT plans use `FFTW_ESTIMATE` in the browser build; the desktop plugin still
+   uses patient planning for higher quality plans.
 4. Use the **Left & right** and **Center** players independently (play, pause, volume, seek).

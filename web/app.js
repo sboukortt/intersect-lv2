@@ -201,6 +201,9 @@ function processIntersect(left, right, fftSize, overlap, onProgress) {
 					switch (msg.type) {
 						case 'progress':
 							onProgress(msg.ratio);
+							if (msg.phase === 'plan') {
+								setStatus('Planning FFT…', { processing: true });
+							}
 							break;
 						case 'done':
 							worker.removeEventListener('message', onMessage);

@@ -92,7 +92,7 @@ emcc "${SOURCES[@]}" \
 	-o "$WEB/intersect.js" \
 	-s MODULARIZE=1 \
 	-s EXPORT_NAME=IntersectWasmModule \
-	-s EXPORTED_FUNCTIONS='["_intersect_wasm_create","_intersect_wasm_destroy","_intersect_wasm_activate","_intersect_wasm_process","_intersect_wasm_get_latency","_malloc","_free"]' \
+	-s EXPORTED_FUNCTIONS='["_intersect_wasm_create","_intersect_wasm_destroy","_intersect_wasm_activate","_intersect_wasm_process","_intersect_wasm_flush","_intersect_wasm_get_latency","_malloc","_free"]' \
 	-s EXPORTED_RUNTIME_METHODS='["cwrap","getValue","setValue","HEAPF32"]' \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	-s ENVIRONMENT=web,worker \

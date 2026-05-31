@@ -32,6 +32,8 @@ void intersect_engine_process_upmix(
 	float* output_center,
 	uint32_t sample_count);
 
+void intersect_engine_flush_upmix(Intersect* intersect);
+
 uint32_t intersect_engine_latency(const Intersect* intersect);
 
 #endif

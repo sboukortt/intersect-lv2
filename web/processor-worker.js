@@ -47,6 +47,7 @@ function runProcess(left, right, fftSize, overlap) {
 	const create = mod.cwrap('intersect_wasm_create', 'number', ['number', 'number']);
 	const destroy = mod.cwrap('intersect_wasm_destroy', null, ['number']);
 	const activate = mod.cwrap('intersect_wasm_activate', 'number', ['number']);
+	const flush = mod.cwrap('intersect_wasm_flush', null, ['number']);
 	const process = mod.cwrap('intersect_wasm_process', 'number', [
 		'number', 'number', 'number', 'number', 'number', 'number', 'number',
 	]);
@@ -62,6 +63,7 @@ function runProcess(left, right, fftSize, overlap) {
 	}
 
 	try {
+		self.postMessage({ type: 'progress', ratio: 0, phase: 'plan' });
 		const latency = activate(handle);
 		if (latency < 0) {
 			throw new Error('Failed to activate processor');
@@ -90,8 +92,10 @@ function runProcess(left, right, fftSize, overlap) {
 					count,
 				);
 				offset += count;
-				self.postMessage({ type: 'progress', ratio: offset / n });
+				self.postMessage({ type: 'progress', ratio: offset / n, phase: 'process' });
 			}
+
+			flush(handle);
 
 			outLeft.set(mod.HEAPF32.subarray(ptrOutL >> 2, (ptrOutL >> 2) + n));
 			outRight.set(mod.HEAPF32.subarray(ptrOutR >> 2, (ptrOutR >> 2) + n));
