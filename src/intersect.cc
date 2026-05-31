@@ -38,7 +38,7 @@ static float magnitude_squared(const float c[2]) {
 	return c[0] * c[0] + c[1] * c[1];
 }
 
-HWY_ATTR void run(LV2_Handle handle, uint32_t sample_count, Effect effect) {
+HWY_ATTR void run(void* handle, uint32_t sample_count, Effect effect) {
 	Intersect *intersect = static_cast<Intersect*>(handle);
 	HWY_FULL(float) d;
 	float *cursor_input [2] = {intersect->input [LEFT], intersect->input [RIGHT]},
@@ -96,7 +96,7 @@ HWY_ATTR void run(LV2_Handle handle, uint32_t sample_count, Effect effect) {
 
 			fftwf_execute(intersect->plan_r2c);
 
-			if (Lanes(d) == 1) {
+			if constexpr (Lanes(d) == 1) {
 				for (int i = 0; i < intersect->fft_size / 2 + 1; ++i) {
 					const float* const left   = intersect->transformed[LEFT] [i];
 					const float* const right  = intersect->transformed[RIGHT][i];
@@ -166,15 +166,15 @@ HWY_EXPORT(run);
 
 #if HWY_ONCE
 
-void intersect_run(LV2_Handle handle, uint32_t sample_count) {
+void intersect_run(void* handle, uint32_t sample_count) {
 	HWY_DYNAMIC_DISPATCH(run)(handle, sample_count, Effect::Intersect);
 }
 
-void symmetric_difference_run(LV2_Handle handle, uint32_t sample_count) {
+void symmetric_difference_run(void* handle, uint32_t sample_count) {
 	HWY_DYNAMIC_DISPATCH(run)(handle, sample_count, Effect::SymmetricDifference);
 }
 
-void upmix_run(LV2_Handle handle, uint32_t sample_count) {
+void upmix_run(void* handle, uint32_t sample_count) {
 	HWY_DYNAMIC_DISPATCH(run)(handle, sample_count, Effect::Upmix);
 }
 

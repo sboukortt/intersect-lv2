@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Intersect — Web Demo</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<header>
+		<h1>Intersect</h1>
+		<p class="tagline">Stereo in → left, right, and center out. All processing runs locally in your browser.</p>
+	</header>
+
+	<main>
+		<section class="panel" aria-labelledby="input-heading">
+			<h2 id="input-heading">Input</h2>
+			<label class="file-label">
+				<span class="file-button">Choose audio file</span>
+				<input type="file" id="file-input" accept="audio/*">
+			</label>
+			<p id="file-info" class="meta">No file loaded.</p>
+
+			<div class="params">
+				<label>
+					FFT window size
+					<input type="number" id="fft-size" min="2" max="65536" step="2" value="4096">
+				</label>
+				<label>
+					Overlap factor
+					<input type="number" id="overlap" min="1" max="4096" value="128">
+				</label>
+			</div>
+
+			<button type="button" id="process-btn" disabled>Process</button>
+			<p id="status" class="status" role="status"></p>
+			<progress id="progress" max="100" value="0" hidden></progress>
+		</section>
+
+		<section class="panel" aria-labelledby="lr-heading">
+			<h2 id="lr-heading">Left &amp; right</h2>
+			<audio id="lr-audio" preload="auto"></audio>
+			<div class="controls">
+				<button type="button" id="lr-play" disabled>Play</button>
+				<button type="button" id="lr-pause" disabled>Pause</button>
+				<label class="slider-label">
+					Volume
+					<input type="range" id="lr-volume" min="0" max="1" step="0.01" value="1">
+				</label>
+				<span id="lr-time" class="time">0:00 / 0:00</span>
+			</div>
+			<input type="range" id="lr-seek" class="seek" min="0" max="1000" value="0" disabled>
+		</section>
+
+		<section class="panel" aria-labelledby="center-heading">
+			<h2 id="center-heading">Center</h2>
+			<audio id="center-audio" preload="auto"></audio>
+			<div class="controls">
+				<button type="button" id="center-play" disabled>Play</button>
+				<button type="button" id="center-pause" disabled>Pause</button>
+				<label class="slider-label">
+					Volume
+					<input type="range" id="center-volume" min="0" max="1" step="0.01" value="1">
+				</label>
+				<span id="center-time" class="time">0:00 / 0:00</span>
+			</div>
+			<input type="range" id="center-seek" class="seek" min="0" max="1000" value="0" disabled>
+		</section>
+	</main>
+
+	<footer>
+		<p>Based on the <a href="https://github.com/sboukortt/intersect-lv2">Intersect LV2</a> plugin (GPLv3).</p>
+	</footer>
+
+	<script src="intersect.js"></script>
+	<script src="app.js" type="module"></script>
+</body>
+</html>

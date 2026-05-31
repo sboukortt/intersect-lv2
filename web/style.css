@@ -1,0 +1,191 @@
+:root {
+	--bg: #0f1116;
+	--panel: #1a1e28;
+	--text: #e8eaef;
+	--muted: #9aa3b5;
+	--accent: #5b8def;
+	--border: #2c3344;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	background: var(--bg);
+	color: var(--text);
+	line-height: 1.5;
+}
+
+header,
+main,
+footer {
+	max-width: 42rem;
+	margin: 0 auto;
+	padding: 1.25rem 1.5rem;
+}
+
+header h1 {
+	margin: 0 0 0.25rem;
+	font-size: 1.75rem;
+	font-weight: 650;
+}
+
+.tagline {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+.panel {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: 0.75rem;
+	padding: 1.25rem;
+	margin-bottom: 1rem;
+}
+
+.panel h2 {
+	margin: 0 0 1rem;
+	font-size: 1.1rem;
+}
+
+.file-label input[type="file"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
+.file-button {
+	display: inline-block;
+	padding: 0.5rem 1rem;
+	background: var(--accent);
+	color: #fff;
+	border-radius: 0.4rem;
+	cursor: pointer;
+	font-weight: 500;
+}
+
+.file-button:hover {
+	filter: brightness(1.08);
+}
+
+.meta,
+.status {
+	font-size: 0.875rem;
+	color: var(--muted);
+	margin: 0.75rem 0 0;
+}
+
+.status.processing {
+	color: var(--accent);
+}
+
+.params {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin: 1rem 0;
+}
+
+.params label {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-size: 0.85rem;
+	color: var(--muted);
+}
+
+.params input[type="number"] {
+	padding: 0.4rem 0.5rem;
+	border: 1px solid var(--border);
+	border-radius: 0.35rem;
+	background: var(--bg);
+	color: var(--text);
+	font: inherit;
+}
+
+button {
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--border);
+	border-radius: 0.4rem;
+	background: var(--bg);
+	color: var(--text);
+	font: inherit;
+	cursor: pointer;
+}
+
+button:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+	border-color: var(--accent);
+}
+
+#process-btn {
+	margin-top: 0.5rem;
+	background: var(--accent);
+	border-color: transparent;
+	color: #fff;
+}
+
+#process-btn:not(:disabled):hover {
+	filter: brightness(1.08);
+}
+
+progress {
+	display: block;
+	width: 100%;
+	margin-top: 0.75rem;
+	height: 0.35rem;
+}
+
+.controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.5rem;
+}
+
+.slider-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.85rem;
+	color: var(--muted);
+}
+
+.slider-label input {
+	width: 6rem;
+}
+
+.time {
+	font-size: 0.8rem;
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.seek {
+	width: 100%;
+	margin: 0;
+}
+
+footer {
+	font-size: 0.8rem;
+	color: var(--muted);
+}
+
+footer a {
+	color: var(--accent);
+}

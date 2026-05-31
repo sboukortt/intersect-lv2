@@ -21,6 +21,14 @@ hearing things that you had never noticed before. (With that said, note that it
 does not necessarily work equally well on all songs, depending on how they were
 mixed.)
 
+Web demo
+=========
+
+A browser demo lives in ``web/``. It lets you load a stereo file, process it
+locally with WebAssembly (same algorithm as the LV2 plugin), and listen to the
+left/right and center outputs with separate players. See ``web/README.md`` for
+build and usage instructions.
+
 How to use it?
 ===============
 

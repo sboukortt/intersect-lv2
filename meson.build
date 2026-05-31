@@ -54,6 +54,8 @@ intersect = shared_library(
 	'intersect',
 	'src/init.h',
 	'src/init.cc',
+	'src/engine.h',
+	'src/engine.cc',
 	'src/intersect.h',
 	'src/intersect.cc',
 	'src/main.cc',

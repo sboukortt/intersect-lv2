@@ -1,5 +1,5 @@
-#ifndef H_INTERSECT_INTERSECT
-#define H_INTERSECT_INTERSECT
+#ifndef H_INTERSECT_ENGINE
+#define H_INTERSECT_ENGINE
 
 /*  Copyright 2015 Sami Boukortt
 
@@ -18,9 +18,20 @@
 */
 
 #include <cstdint>
+#include "types.h"
 
-void intersect_run(void* handle, uint32_t sample_count);
-void symmetric_difference_run(void* handle, uint32_t sample_count);
-void upmix_run(void* handle, uint32_t sample_count);
+void intersect_engine_activate(Intersect* intersect);
+void intersect_engine_deactivate(Intersect* intersect);
+
+void intersect_engine_process_upmix(
+	Intersect* intersect,
+	const float* input_left,
+	const float* input_right,
+	float* output_left,
+	float* output_right,
+	float* output_center,
+	uint32_t sample_count);
+
+uint32_t intersect_engine_latency(const Intersect* intersect);
 
 #endif
