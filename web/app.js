@@ -203,6 +203,8 @@ function processIntersect(left, right, fftSize, overlap, onProgress) {
 							onProgress(msg.ratio);
 							if (msg.phase === 'plan') {
 								setStatus('Planning FFT…', { processing: true });
+							} else if (msg.phase === 'process') {
+								setStatus('Processing…', { processing: true });
 							}
 							break;
 						case 'done':
