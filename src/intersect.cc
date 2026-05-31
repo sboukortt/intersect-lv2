@@ -18,8 +18,8 @@
 
 #include <algorithm>
 #include <complex>
-#include <fftw3.h>
 #include <string.h>
+#include "fft.h"
 #include "types.h"
 
 #undef HWY_TARGET_INCLUDE
@@ -94,15 +94,55 @@ HWY_ATTR void run(void* handle, uint32_t sample_count, Effect effect) {
 			memmove(intersect->output_buffer[CENTER].get(), intersect->output_buffer[CENTER].get() + intersect->fft_jump_size, (intersect->fft_size - intersect->fft_jump_size) * sizeof(float));
 			memset(intersect->output_buffer[CENTER].get() + (intersect->fft_size - intersect->fft_jump_size), 0, intersect->fft_jump_size * sizeof(float));
 
-			fftwf_execute(intersect->plan_r2c);
+			intersect_fft_forward(intersect);
 
+#if defined(INTERSECT_USE_PFFFT)
+			/* PFFFT ordered real layout: [DC, Nyquist, re1, im1, re2, im2, …]. */
+			{
+				const float* const left_dc  = intersect->transformed[LEFT];
+				const float* const right_dc = intersect->transformed[RIGHT];
+				const float* const win_dc =
+					left_dc[0] * left_dc[0] < right_dc[0] * right_dc[0] ? left_dc : right_dc;
+				intersect->pre_output[0] = win_dc[0];
+
+				const float* const win_nyq =
+					left_dc[1] * left_dc[1] < right_dc[1] * right_dc[1] ? left_dc : right_dc;
+				intersect->pre_output[1] = win_nyq[1];
+			}
+			if constexpr (Lanes(d) == 1) {
+				for (int k = 1; k < intersect->fft_size / 2; ++k) {
+					const float* const left   = intersect->transformed[LEFT] + 2 * k;
+					const float* const right  = intersect->transformed[RIGHT] + 2 * k;
+					const float* const winner = magnitude_squared(left) < magnitude_squared(right) ? left : right;
+					intersect->pre_output[2 * k]     = winner[0];
+					intersect->pre_output[2 * k + 1] = winner[1];
+				}
+			}
+			else {
+				const size_t spectrum_pairs = static_cast<size_t>(intersect->fft_size - 2);
+				hn::Transform2(
+					d,
+					intersect->pre_output + 2,
+					spectrum_pairs,
+					intersect->transformed[LEFT] + 2,
+					intersect->transformed[RIGHT] + 2,
+					[](auto d, auto, auto left, auto right) HWY_ATTR {
+						const auto left_squared = hn::Mul(left, left);
+						const auto right_squared = hn::Mul(right, right);
+						const auto left_magnitudes_squared = hn::PairwiseAdd(d, left_squared, left_squared);
+						const auto right_magnitudes_squared = hn::PairwiseAdd(d, right_squared, right_squared);
+						return hn::IfThenElse(hn::Lt(left_magnitudes_squared, right_magnitudes_squared), left, right);
+					}
+				);
+			}
+#else
 			if constexpr (Lanes(d) == 1) {
 				for (int i = 0; i < intersect->fft_size / 2 + 1; ++i) {
-					const float* const left   = intersect->transformed[LEFT] [i];
-					const float* const right  = intersect->transformed[RIGHT][i];
+					const float* const left   = intersect->transformed[LEFT] + 2 * i;
+					const float* const right  = intersect->transformed[RIGHT] + 2 * i;
 					const float* const winner = magnitude_squared(left) < magnitude_squared(right) ? left : right;
-					intersect->pre_output[i][0] = winner[0];
-					intersect->pre_output[i][1] = winner[1];
+					intersect->pre_output[2 * i]     = winner[0];
+					intersect->pre_output[2 * i + 1] = winner[1];
 				}
 			}
 			else {
@@ -121,8 +161,9 @@ HWY_ATTR void run(void* handle, uint32_t sample_count, Effect effect) {
 					}
 				);
 			}
+#endif
 
-			fftwf_execute(intersect->plan_c2r);
+			intersect_fft_inverse(intersect);
 
 			hn::Transform1(
 				d,

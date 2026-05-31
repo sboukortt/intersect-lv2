@@ -25,9 +25,9 @@ Web demo
 =========
 
 A browser demo lives in ``web/``. It lets you load a stereo file, process it
-locally with WebAssembly (same algorithm as the LV2 plugin), and listen to the
-left/right and center outputs with separate players. See ``web/README.md`` for
-build and usage instructions.
+locally with WebAssembly (same algorithm as the LV2 plugin, using PFFFT instead
+of FFTW), and listen to the left/right and center outputs with separate players.
+See ``web/README.md`` for build and usage instructions.
 
 How to use it?
 ===============

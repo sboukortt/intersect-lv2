@@ -54,6 +54,8 @@ intersect = shared_library(
 	'intersect',
 	'src/init.h',
 	'src/init.cc',
+	'src/fft.h',
+	'src/fft.cc',
 	'src/engine.h',
 	'src/engine.cc',
 	'src/intersect.h',

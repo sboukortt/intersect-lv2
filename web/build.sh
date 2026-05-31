@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-# Build Intersect WebAssembly module (intersect.js + intersect.wasm).
+# Build Intersect WebAssembly module (intersect.js + intersect.wasm) with PFFFT.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WEB="$ROOT/web"
 BUILD="$WEB/build"
 SRC="$ROOT/src"
-FFTW_VERSION="3.3.10"
-FFTW_DIR="$BUILD/fftw-${FFTW_VERSION}"
+PFFFT="$ROOT/third_party/pffft"
 
 # WebAssembly SIMD (fixed-width 128-bit). Requires a browser with Wasm SIMD support.
 SIMD_FLAGS=(-msimd128)
@@ -44,43 +43,30 @@ if [[ ! -f "$HWY_LIB" ]] || [[ ! -f "$HWY_STAMP" ]]; then
 	date -u +%Y-%m-%dT%H:%M:%SZ >"$HWY_STAMP"
 fi
 
-FFTW_LIB="$BUILD/libfftw3f.a"
-if [[ ! -f "$FFTW_LIB" ]]; then
-	if [[ ! -d "$FFTW_DIR" ]]; then
-		archive="$BUILD/fftw-${FFTW_VERSION}.tar.gz"
-		if [[ ! -f "$archive" ]]; then
-			curl -fsSL "http://www.fftw.org/fftw-${FFTW_VERSION}.tar.gz" -o "$archive"
-		fi
-		tar -xzf "$archive" -C "$BUILD"
-	fi
-	pushd "$FFTW_DIR" >/dev/null
-	if [[ ! -f Makefile ]]; then
-		emconfigure ./configure \
-			--enable-float \
-			--enable-static \
-			--disable-shared \
-			--disable-fortran \
-			--disable-doc \
-			--disable-threads \
-			--with-our-malloc \
-			CFLAGS="${SIMD_FLAGS[*]} -O3"
-	fi
-	emmake make -j"$(nproc 2>/dev/null || echo 2)"
-	popd >/dev/null
-	cp -f "$FFTW_DIR"/.libs/libfftw3f.a "$FFTW_LIB"
+PFFFT_LIB="$BUILD/libpffft-simd.a"
+PFFFT_STAMP="$BUILD/.pffft-simd.stamp"
+if [[ ! -f "$PFFFT_LIB" ]] || [[ "$PFFFT/pffft.c" -nt "$PFFFT_STAMP" ]]; then
+	emcc -c "$PFFFT/pffft.c" -o "$BUILD/pffft.o" \
+		"${SIMD_FLAGS[@]}" \
+		-I"$PFFFT" \
+		-O3
+	emar rcs "$PFFFT_LIB" "$BUILD/pffft.o"
+	date -u +%Y-%m-%dT%H:%M:%SZ >"$PFFFT_STAMP"
 fi
 
 COMMON_FLAGS=(
 	-O3
 	-std=c++17
 	"${SIMD_FLAGS[@]}"
+	-DINTERSECT_USE_PFFFT
 	-I"$SRC"
 	-I"$HWY_DIR"
-	-I"$FFTW_DIR/api"
+	-I"$PFFFT"
 )
 
 SOURCES=(
 	"$WEB/wasm_api.cc"
+	"$SRC/fft.cc"
 	"$SRC/engine.cc"
 	"$SRC/intersect.cc"
 )
@@ -88,7 +74,7 @@ SOURCES=(
 emcc "${SOURCES[@]}" \
 	"${COMMON_FLAGS[@]}" \
 	"$HWY_LIB" \
-	"$FFTW_LIB" \
+	"$PFFFT_LIB" \
 	-o "$WEB/intersect.js" \
 	-s MODULARIZE=1 \
 	-s EXPORT_NAME=IntersectWasmModule \
@@ -98,4 +84,4 @@ emcc "${SOURCES[@]}" \
 	-s ENVIRONMENT=web,worker \
 	-s FILESYSTEM=0
 
-echo "Built $WEB/intersect.js and $WEB/intersect.wasm (WebAssembly SIMD enabled)"
+echo "Built $WEB/intersect.js and $WEB/intersect.wasm (PFFFT + WebAssembly SIMD)"

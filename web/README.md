@@ -16,12 +16,26 @@ Then:
 ./web/build.sh
 ```
 
-This produces `web/intersect.js` and `web/intersect.wasm`. The build uses
-`-msimd128` so the plugin core runs with Highway’s WASM SIMD target (faster
-than the previous scalar-only build). Browsers without WebAssembly SIMD cannot
-run this module; all current Chromium, Firefox, and Safari versions support it.
+This produces `web/intersect.js` and `web/intersect.wasm`. The web build uses
+**PFFFT** (vendored under ``third_party/pffft/``) instead of FFTW, built with **Wasm SIMD128**
+(`-msimd128`) for the FFT kernels. The plugin core also uses Highway with the same flag.
+Ordered spectra use PFFFT’s native layout ``[DC, Nyquist, re₁, im₁, …]`` (see ``src/intersect.cc``).
+Planning is instant.
+Browsers without WebAssembly SIMD cannot run this module.
 
-To force a clean rebuild after changing SIMD settings, remove `web/build/`.
+FFT window sizes must be valid for PFFFT: ``N = 2^a × 3^b × 5^c`` with ``a ≥ 5``
+(e.g. 32, 48, 64, …, 4096, 8192). Other values are rounded up to the nearest
+valid size.
+
+To force a clean rebuild, remove ``web/build/``.
+
+## Licenses
+
+The web demo footer credits `pffft.wasm` (BSD-2-Clause) and upstream PFFFT
+(FFTPACK-derived terms). ``NOTICES.txt`` includes the full text for both, for
+binary redistribution (``intersect.wasm`` embeds the vendored PFFFT sources from
+``third_party/pffft/``, originally packaged at
+https://github.com/JorenSix/pffft.wasm).
 
 ## Run locally
 
@@ -42,6 +56,4 @@ are read from the file header; other formats default to 44100 Hz for decode.
 1. Choose a stereo audio file.
 2. Optionally adjust FFT window size and overlap (defaults match the LV2 plugin).
 3. Click **Process** (WASM runs in a Web Worker so the page stays responsive).
-   FFT plans use `FFTW_ESTIMATE` in the browser build; the desktop plugin still
-   uses patient planning for higher quality plans.
 4. Use the **Left & right** and **Center** players independently (play, pause, volume, seek).

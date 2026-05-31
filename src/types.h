@@ -17,8 +17,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fftw3.h>
 #include <hwy/aligned_allocator.h>
+
+#if defined(INTERSECT_USE_PFFFT)
+#include "pffft.h"
+#else
+#include <fftw3.h>
+#endif
 
 enum {
 	FFT_SIZE,
@@ -62,10 +67,16 @@ struct Intersect {
 	float* ifft_result;
 	hwy::AlignedFreeUniquePtr<float[]> output_buffer[3];
 
-	fftwf_complex* transformed[2];
-	fftwf_complex* pre_output;
+	/* Interleaved complex spectrum: (fft_size/2 + 1) bins, 2 floats each. */
+	float* transformed[2];
+	float* pre_output;
 
+#if defined(INTERSECT_USE_PFFFT)
+	PFFFT_Setup* pffft_setup;
+	float* pffft_work;
+#else
 	fftwf_plan plan_r2c, plan_c2r;
+#endif
 };
 
 #endif

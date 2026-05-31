@@ -16,8 +16,10 @@
 
 #include "init.h"
 
-#include <fftw3.h>
 #include "engine.h"
+#if !defined(INTERSECT_USE_PFFFT)
+#include <fftw3.h>
+#endif
 #include "types.h"
 
 LV2_Handle intersect_instantiate(const LV2_Descriptor* descriptor,
@@ -25,7 +27,9 @@ LV2_Handle intersect_instantiate(const LV2_Descriptor* descriptor,
                                  const char* bundle_path,
                                  const LV2_Feature* const * features)
 {
+#if !defined(INTERSECT_USE_PFFFT)
 	fftwf_make_planner_thread_safe();
+#endif
 	return new Intersect;
 }
 

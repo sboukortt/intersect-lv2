@@ -19,7 +19,6 @@
 #include <new>
 #include <vector>
 #include <emscripten.h>
-#include <fftw3.h>
 
 #include "../src/engine.h"
 #include "../src/types.h"

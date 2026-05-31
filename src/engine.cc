@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
-#include <fftw3.h>
+#include "fft.h"
 #include "intersect.h"
 
 #undef HWY_TARGET_INCLUDE
@@ -66,6 +66,9 @@ void intersect_engine_activate(Intersect* intersect) {
 	if (intersect->fft_size % 2 != 0) {
 		++intersect->fft_size;
 	}
+#if defined(INTERSECT_USE_PFFFT)
+	intersect->fft_size = intersect_pffft_snap_size(intersect->fft_size);
+#endif
 	intersect->overlap_factor = std::clamp<uint32_t>(
 		static_cast<uint32_t>(*intersect->overlap_factor_hint),
 		1u,
@@ -76,10 +79,10 @@ void intersect_engine_activate(Intersect* intersect) {
 
 	intersect->deviation = 0;
 
-	intersect->input_buffer[LEFT]  = fftwf_alloc_real(intersect->fft_size);
-	intersect->input_buffer[RIGHT] = fftwf_alloc_real(intersect->fft_size);
+	intersect->input_buffer[LEFT]  = intersect_alloc_real_buffer(intersect->fft_size);
+	intersect->input_buffer[RIGHT] = intersect_alloc_real_buffer(intersect->fft_size);
 
-	intersect->ifft_result = fftwf_alloc_real(pad(intersect->fft_size));
+	intersect->ifft_result = intersect_alloc_real_buffer(pad(intersect->fft_size));
 
 	intersect->output_buffer[LEFT]  = hwy::AllocateAligned<float>(pad(intersect->fft_jump_size));
 	zero_fill(intersect->output_buffer[LEFT].get(), intersect->fft_jump_size);
@@ -88,60 +91,23 @@ void intersect_engine_activate(Intersect* intersect) {
 	intersect->output_buffer[CENTER]= hwy::AllocateAligned<float>(pad(intersect->fft_size));
 	zero_fill(intersect->output_buffer[CENTER].get(), intersect->fft_size);
 
-	intersect->transformed[LEFT]  = fftwf_alloc_complex(intersect->fft_size / 2 + 1);
-	intersect->transformed[RIGHT] = fftwf_alloc_complex(intersect->fft_size / 2 + 1);
-	intersect->pre_output         = fftwf_alloc_complex(intersect->fft_size / 2 + 1);
-
 	for (int i = 0; i < 2; ++i) {
 		memset(intersect->input_buffer[i], 0, intersect->fft_size * sizeof(float));
 	}
 
-#if defined(__EMSCRIPTEN__)
-	// PATIENT/MEASURE benchmark many plans; on WASM that can take forever.
-	const unsigned plan_r2c_flags = FFTW_ESTIMATE;
-	const unsigned plan_c2r_flags = FFTW_ESTIMATE | FFTW_DESTROY_INPUT;
-#else
-	const unsigned plan_r2c_flags = FFTW_PATIENT;
-	const unsigned plan_c2r_flags = FFTW_MEASURE | FFTW_DESTROY_INPUT;
-#endif
-
-	intersect->plan_r2c = fftwf_plan_many_dft_r2c(
-		/*rank=*/1,
-		/*n=*/&intersect->fft_size,
-		/*howmany=*/2,
-		/*in*/intersect->input_buffer[LEFT],
-		/*inembed=*/NULL,
-		/*istride=*/1,
-		/*idist=*/intersect->input_buffer[RIGHT] - intersect->input_buffer[LEFT],
-		/*out=*/intersect->transformed[LEFT],
-		/*onembed=*/NULL,
-		/*ostride=*/1,
-		/*odist=*/intersect->transformed[RIGHT] - intersect->transformed[LEFT],
-		plan_r2c_flags
-	);
-	intersect->plan_c2r = fftwf_plan_dft_c2r_1d(
-		intersect->fft_size,
-		intersect->pre_output,
-		intersect->ifft_result,
-		plan_c2r_flags
-	);
+	intersect_fft_activate(intersect);
 }
 
 void intersect_engine_deactivate(Intersect* intersect) {
-	fftwf_free(intersect->input_buffer[LEFT]);
-	fftwf_free(intersect->input_buffer[RIGHT]);
-	fftwf_free(intersect->ifft_result);
+	intersect_fft_deactivate(intersect);
+
+	intersect_free_real_buffer(intersect->input_buffer[LEFT]);
+	intersect_free_real_buffer(intersect->input_buffer[RIGHT]);
+	intersect_free_real_buffer(intersect->ifft_result);
 
 	for (auto& output_buffer: intersect->output_buffer) {
 		output_buffer.reset();
 	}
-
-	fftwf_free(intersect->transformed[LEFT]);
-	fftwf_free(intersect->transformed[RIGHT]);
-	fftwf_free(intersect->pre_output);
-
-	fftwf_destroy_plan(intersect->plan_r2c);
-	fftwf_destroy_plan(intersect->plan_c2r);
 }
 
 uint32_t intersect_engine_latency(const Intersect* intersect) {
