@@ -35,6 +35,10 @@ Open http://localhost:8080/
 
 ## Usage
 
+Decoded audio uses `OfflineAudioContext` (not the device `AudioContext`) so files are
+not resampled to the output device rate before processing. WAV and FLAC sample rates
+are read from the file header; other formats default to 44100 Hz for decode.
+
 1. Choose a stereo audio file.
 2. Optionally adjust FFT window size and overlap (defaults match the LV2 plugin).
 3. Click **Process**.

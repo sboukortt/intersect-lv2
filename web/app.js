@@ -66,6 +66,68 @@ function wasmSimdSupported() {
 	}
 }
 
+/**
+ * @param {DataView} view
+ * @param {number} offset
+ */
+function readFourCC(view, offset) {
+	let s = '';
+	for (let i = 0; i < 4; i++) {
+		s += String.fromCharCode(view.getUint8(offset + i));
+	}
+	return s;
+}
+
+/**
+ * Best-effort native sample rate before decode (WAV / FLAC). MP3 and others fall back.
+ * @param {ArrayBuffer} arrayBuffer
+ * @returns {number | null}
+ */
+function sniffSampleRate(arrayBuffer) {
+	if (arrayBuffer.byteLength < 44) {
+		return null;
+	}
+	const view = new DataView(arrayBuffer);
+
+	if (readFourCC(view, 0) === 'RIFF' && readFourCC(view, 8) === 'WAVE') {
+		let offset = 12;
+		while (offset + 8 <= arrayBuffer.byteLength) {
+			const chunkId = readFourCC(view, offset);
+			const chunkSize = view.getUint32(offset + 4, true);
+			if (chunkId === 'fmt ' && chunkSize >= 16 && offset + 16 <= arrayBuffer.byteLength) {
+				const rate = view.getUint32(offset + 12, true);
+				return rate > 0 ? rate : null;
+			}
+			offset += 8 + chunkSize + (chunkSize % 2);
+		}
+	}
+
+	if (readFourCC(view, 0) === 'fLaC' && arrayBuffer.byteLength >= 21) {
+		// STREAMINFO is metadata block 0; sample rate is a 20-bit field at streaminfo+10.
+		const sampleRate =
+			(view.getUint8(18) << 12) |
+			(view.getUint8(19) << 4) |
+			(view.getUint8(20) >> 4);
+		return sampleRate > 0 ? sampleRate : null;
+	}
+
+	return null;
+}
+
+/**
+ * Decode without tying to the audio output device sample rate.
+ * @param {ArrayBuffer} arrayBuffer
+ * @param {number} contextSampleRate from file header, or 44100 when unknown
+ */
+async function decodeAudioFile(arrayBuffer, contextSampleRate) {
+	const offline = new OfflineAudioContext({
+		numberOfChannels: 2,
+		length: 1,
+		sampleRate: contextSampleRate,
+	});
+	return offline.decodeAudioData(arrayBuffer.slice(0));
+}
+
 async function loadWasm() {
 	if (wasmModule) {
 		return wasmModule;
@@ -321,12 +383,15 @@ fileInput.addEventListener('change', async () => {
 	setStatus('Decoding audio…', { processing: true });
 	try {
 		const arrayBuffer = await file.arrayBuffer();
-		const ctx = new AudioContext();
-		sourceBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
-		await ctx.close();
+		const sniffed = sniffSampleRate(arrayBuffer);
+		sourceBuffer = await decodeAudioFile(arrayBuffer, sniffed ?? 44100);
 
 		const duration = sourceBuffer.duration;
-		fileInfo.textContent = `${file.name} — ${sourceBuffer.numberOfChannels} channel(s), ${sourceBuffer.sampleRate} Hz, ${formatTime(duration)}`;
+		const rateMismatch =
+			sniffed != null && sniffed !== sourceBuffer.sampleRate
+				? ` (header ${sniffed} Hz)`
+				: '';
+		fileInfo.textContent = `${file.name} — ${sourceBuffer.numberOfChannels} channel(s), ${sourceBuffer.sampleRate} Hz${rateMismatch}, ${formatTime(duration)}`;
 		processBtn.disabled = false;
 		setStatus('Ready to process.');
 	} catch (err) {
