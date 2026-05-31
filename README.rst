@@ -40,6 +40,17 @@ LV2proc_ (recommended on Linux) and the famous Audacity_ editor.
 Getting a working copy
 -----------------------
 
+Testing on the Web
+~~~~~~~~~~~~~~~~~~~
+
+The ``cursor-web`` branch contains a Web demo created by Cursor_. A copy is
+hosted here: https://sami.boukortt.com/intersect/
+
+.. _Cursor: https://cursor.com/
+
+Using it, you can pick a local audio file and have it processed by Intersect
+right in your browser. All processing happens offline.
+
 On Windows
 ~~~~~~~~~~~
 
