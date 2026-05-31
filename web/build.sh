@@ -9,6 +9,9 @@ SRC="$ROOT/src"
 FFTW_VERSION="3.3.10"
 FFTW_DIR="$BUILD/fftw-${FFTW_VERSION}"
 
+# WebAssembly SIMD (fixed-width 128-bit). Requires a browser with Wasm SIMD support.
+SIMD_FLAGS=(-msimd128)
+
 if ! command -v emcc >/dev/null 2>&1; then
 	echo "Emscripten (emcc) not found. Install the emsdk and run: source emsdk_env.sh" >&2
 	exit 1
@@ -25,18 +28,20 @@ if [[ ! -d "$HWY_DIR/hwy" ]]; then
 	exit 1
 fi
 
-HWY_LIB="$BUILD/libhwy.a"
-if [[ ! -f "$HWY_LIB" ]]; then
+HWY_LIB="$BUILD/libhwy-simd128.a"
+HWY_STAMP="$BUILD/.hwy-simd128.stamp"
+if [[ ! -f "$HWY_LIB" ]] || [[ ! -f "$HWY_STAMP" ]]; then
 	HWY_OBJECTS=()
 	for src in abort aligned_allocator nanobenchmark per_target perf_counters print profiler targets timer; do
 		obj="$BUILD/hwy_${src}.o"
 		emcc -c "$HWY_DIR/hwy/${src}.cc" -o "$obj" \
+			"${SIMD_FLAGS[@]}" \
 			-I"$HWY_DIR" \
-			-DHWY_COMPILE_ONLY_SCALAR=1 \
 			-O3 -std=c++17
 		HWY_OBJECTS+=("$obj")
 	done
 	emar rcs "$HWY_LIB" "${HWY_OBJECTS[@]}"
+	date -u +%Y-%m-%dT%H:%M:%SZ >"$HWY_STAMP"
 fi
 
 FFTW_LIB="$BUILD/libfftw3f.a"
@@ -57,7 +62,8 @@ if [[ ! -f "$FFTW_LIB" ]]; then
 			--disable-fortran \
 			--disable-doc \
 			--disable-threads \
-			--with-our-malloc
+			--with-our-malloc \
+			CFLAGS="${SIMD_FLAGS[*]} -O3"
 	fi
 	emmake make -j"$(nproc 2>/dev/null || echo 2)"
 	popd >/dev/null
@@ -67,10 +73,10 @@ fi
 COMMON_FLAGS=(
 	-O3
 	-std=c++17
+	"${SIMD_FLAGS[@]}"
 	-I"$SRC"
 	-I"$HWY_DIR"
 	-I"$FFTW_DIR/api"
-	-DHWY_COMPILE_ONLY_SCALAR=1
 )
 
 SOURCES=(
@@ -92,4 +98,4 @@ emcc "${SOURCES[@]}" \
 	-s ENVIRONMENT=web \
 	-s FILESYSTEM=0
 
-echo "Built $WEB/intersect.js and $WEB/intersect.wasm"
+echo "Built $WEB/intersect.js and $WEB/intersect.wasm (WebAssembly SIMD enabled)"

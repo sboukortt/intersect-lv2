@@ -52,9 +52,28 @@ function enablePlayback(enabled) {
 	}
 }
 
+/** Minimal Wasm module that uses v128 (simd128); validates SIMD support. */
+const WASM_SIMD_PROBE = new Uint8Array([
+	0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10,
+	1, 8, 0, 65, 0, 253, 15, 253, 98, 11,
+]);
+
+function wasmSimdSupported() {
+	try {
+		return WebAssembly.validate(WASM_SIMD_PROBE);
+	} catch {
+		return false;
+	}
+}
+
 async function loadWasm() {
 	if (wasmModule) {
 		return wasmModule;
+	}
+	if (!wasmSimdSupported()) {
+		throw new Error(
+			'This browser does not support WebAssembly SIMD (required by intersect.wasm).',
+		);
 	}
 	if (typeof IntersectWasmModule !== 'function') {
 		throw new Error(

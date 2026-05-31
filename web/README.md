@@ -16,7 +16,12 @@ Then:
 ./web/build.sh
 ```
 
-This produces `web/intersect.js` and `web/intersect.wasm`.
+This produces `web/intersect.js` and `web/intersect.wasm`. The build uses
+`-msimd128` so the plugin core runs with Highway’s WASM SIMD target (faster
+than the previous scalar-only build). Browsers without WebAssembly SIMD cannot
+run this module; all current Chromium, Firefox, and Safari versions support it.
+
+To force a clean rebuild after changing SIMD settings, remove `web/build/`.
 
 ## Run locally
 
