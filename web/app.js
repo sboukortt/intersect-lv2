@@ -25,10 +25,10 @@ const centerTime = document.getElementById('center-time');
 
 /** @type {AudioBuffer | null} */
 let sourceBuffer = null;
-/** @type {import('./intersect.js').default | null} */
-let wasmModule = null;
-
-const CHUNK_FRAMES = 8192;
+/** @type {Worker | null} */
+let processorWorker = null;
+/** @type {Promise<Worker> | null} */
+let processorWorkerReady = null;
 
 function formatTime(seconds) {
 	if (!Number.isFinite(seconds) || seconds < 0) {
@@ -128,24 +128,38 @@ async function decodeAudioFile(arrayBuffer, contextSampleRate) {
 	return offline.decodeAudioData(arrayBuffer.slice(0));
 }
 
-async function loadWasm() {
-	if (wasmModule) {
-		return wasmModule;
+function getProcessorWorker() {
+	if (processorWorkerReady) {
+		return processorWorkerReady;
 	}
 	if (!wasmSimdSupported()) {
-		throw new Error(
-			'This browser does not support WebAssembly SIMD (required by intersect.wasm).',
+		return Promise.reject(
+			new Error(
+				'This browser does not support WebAssembly SIMD (required by intersect.wasm).',
+			),
 		);
 	}
-	if (typeof IntersectWasmModule !== 'function') {
-		throw new Error(
-			'WASM module not loaded. Run web/build.sh and serve this folder over HTTP.',
-		);
-	}
-	wasmModule = await IntersectWasmModule({
-		locateFile: (path) => path,
+	processorWorkerReady = new Promise((resolve, reject) => {
+		const worker = new Worker('processor-worker.js');
+		const onStartup = (event) => {
+			const { type, message } = event.data;
+			if (type === 'ready') {
+				worker.removeEventListener('message', onStartup);
+				processorWorker = worker;
+				resolve(worker);
+				return;
+			}
+			if (type === 'error') {
+				worker.removeEventListener('message', onStartup);
+				reject(new Error(message ?? 'Worker failed to start'));
+			}
+		};
+		worker.addEventListener('message', onStartup);
+		worker.onerror = () => {
+			reject(new Error('Processor worker failed to load. Run web/build.sh.'));
+		};
 	});
-	return wasmModule;
+	return processorWorkerReady;
 }
 
 /**
@@ -175,81 +189,49 @@ function stereoChannels(buffer) {
  * @param {number} overlap
  * @param {(ratio: number) => void} onProgress
  */
-async function processIntersect(left, right, fftSize, overlap, onProgress) {
-	const mod = await loadWasm();
-	const create = mod.cwrap('intersect_wasm_create', 'number', ['number', 'number']);
-	const destroy = mod.cwrap('intersect_wasm_destroy', null, ['number']);
-	const activate = mod.cwrap('intersect_wasm_activate', 'number', ['number']);
-	const process = mod.cwrap('intersect_wasm_process', 'number', [
-		'number', 'number', 'number', 'number', 'number', 'number', 'number',
-	]);
+function processIntersect(left, right, fftSize, overlap, onProgress) {
+	return getProcessorWorker().then(
+		(worker) =>
+			new Promise((resolve, reject) => {
+				const leftIn = new Float32Array(left);
+				const rightIn = new Float32Array(right);
 
-	const n = left.length;
-	const outLeft = new Float32Array(n);
-	const outRight = new Float32Array(n);
-	const outCenter = new Float32Array(n);
+				const onMessage = (event) => {
+					const msg = event.data;
+					switch (msg.type) {
+						case 'progress':
+							onProgress(msg.ratio);
+							break;
+						case 'done':
+							worker.removeEventListener('message', onMessage);
+							resolve({
+								outLeft: new Float32Array(msg.outLeft),
+								outRight: new Float32Array(msg.outRight),
+								outCenter: new Float32Array(msg.outCenter),
+							});
+							break;
+						case 'error':
+							worker.removeEventListener('message', onMessage);
+							reject(new Error(msg.message ?? 'Processing failed'));
+							break;
+						default:
+							break;
+					}
+				};
 
-	const handle = create(fftSize, overlap);
-	if (!handle) {
-		throw new Error('Failed to create Intersect processor');
-	}
-
-	try {
-		const latency = activate(handle);
-		if (latency < 0) {
-			throw new Error('Failed to activate processor');
-		}
-
-		const ptrInL = mod._malloc(n * 4);
-		const ptrInR = mod._malloc(n * 4);
-		const ptrOutL = mod._malloc(n * 4);
-		const ptrOutR = mod._malloc(n * 4);
-		const ptrOutC = mod._malloc(n * 4);
-
-		try {
-			mod.HEAPF32.set(left, ptrInL >> 2);
-			mod.HEAPF32.set(right, ptrInR >> 2);
-
-			let offset = 0;
-			while (offset < n) {
-				const count = Math.min(CHUNK_FRAMES, n - offset);
-				process(
-					handle,
-					ptrInL + offset * 4,
-					ptrInR + offset * 4,
-					ptrOutL + offset * 4,
-					ptrOutR + offset * 4,
-					ptrOutC + offset * 4,
-					count,
+				worker.addEventListener('message', onMessage);
+				worker.postMessage(
+					{
+						type: 'process',
+						left: leftIn.buffer,
+						right: rightIn.buffer,
+						fftSize,
+						overlap,
+					},
+					[leftIn.buffer, rightIn.buffer],
 				);
-				offset += count;
-				onProgress(offset / n);
-			}
-
-			outLeft.set(mod.HEAPF32.subarray(ptrOutL >> 2, (ptrOutL >> 2) + n));
-			outRight.set(mod.HEAPF32.subarray(ptrOutR >> 2, (ptrOutR >> 2) + n));
-			outCenter.set(mod.HEAPF32.subarray(ptrOutC >> 2, (ptrOutC >> 2) + n));
-		} finally {
-			mod._free(ptrInL);
-			mod._free(ptrInR);
-			mod._free(ptrOutL);
-			mod._free(ptrOutR);
-			mod._free(ptrOutC);
-		}
-
-		if (latency > 0 && latency < n) {
-			outLeft.copyWithin(0, latency);
-			outRight.copyWithin(0, latency);
-			outCenter.copyWithin(0, latency);
-			outLeft.fill(0, n - latency);
-			outRight.fill(0, n - latency);
-			outCenter.fill(0, n - latency);
-		}
-
-		return { outLeft, outRight, outCenter, latency };
-	} finally {
-		destroy(handle);
-	}
+			}),
+	);
 }
 
 /**
@@ -410,7 +392,6 @@ processBtn.addEventListener('click', async () => {
 	setStatus('Loading processor…', { processing: true });
 
 	try {
-		await loadWasm();
 		const { left, right, sampleRate } = stereoChannels(sourceBuffer);
 		const fftSize = Number(fftSizeInput.value) || 4096;
 		const overlap = Number(overlapInput.value) || 128;

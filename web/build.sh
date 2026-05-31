@@ -95,7 +95,7 @@ emcc "${SOURCES[@]}" \
 	-s EXPORTED_FUNCTIONS='["_intersect_wasm_create","_intersect_wasm_destroy","_intersect_wasm_activate","_intersect_wasm_process","_intersect_wasm_get_latency","_malloc","_free"]' \
 	-s EXPORTED_RUNTIME_METHODS='["cwrap","getValue","setValue","HEAPF32"]' \
 	-s ALLOW_MEMORY_GROWTH=1 \
-	-s ENVIRONMENT=web \
+	-s ENVIRONMENT=web,worker \
 	-s FILESYSTEM=0
 
 echo "Built $WEB/intersect.js and $WEB/intersect.wasm (WebAssembly SIMD enabled)"
