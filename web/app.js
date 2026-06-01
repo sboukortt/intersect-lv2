@@ -399,15 +399,15 @@ centerDownload.addEventListener('click', () => {
 
 fileInput.addEventListener('change', async () => {
 	const file = fileInput.files?.[0];
+	if (!file) {
+		/* Dialog cancelled or empty selection — keep the previous file and results. */
+		return;
+	}
+
 	sourceBuffer = null;
 	processedBlobs = null;
 	enablePlayback(false);
 	processBtn.disabled = true;
-
-	if (!file) {
-		fileInfo.textContent = 'No file loaded.';
-		return;
-	}
 
 	sourceBaseName = exportBaseName(file.name);
 
