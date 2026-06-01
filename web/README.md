@@ -1,4 +1,4 @@
-# Intersect Web Demo
+# Intersect
 
 Browser UI for the Intersect stereo → L/R/center algorithm. Audio stays on your machine: decoding and playback use the Web Audio API; processing uses WebAssembly compiled from the same C++ core as the LV2 plugin.
 
@@ -46,6 +46,19 @@ cd web && python3 -m http.server 8080
 ```
 
 Open http://localhost:8080/
+
+## Offline use
+
+The demo is a small progressive web app:
+
+- ``manifest.webmanifest`` — installable metadata and theme colors
+- ``sw.js`` — caches HTML, CSS, JS, the processor worker, ``intersect.js``, and ``intersect.wasm``
+
+After you open the app once while online (with ``./build.sh`` already run), those assets stay available offline. Processing still starts when you click **Process**; the WASM module is loaded from the cache instead of the network.
+
+Service workers require a secure context (``https://`` or ``http://localhost``). They do not run on ``file://`` URLs.
+
+To pick up a new build after ``./build.sh``, bump the ``CACHE`` name in ``sw.js`` or clear the site data in your browser.
 
 ## Usage
 
